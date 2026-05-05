@@ -1,2 +1,2 @@
-# AI-develope
-AI develope 
+# AI-develop
+AI develop 
