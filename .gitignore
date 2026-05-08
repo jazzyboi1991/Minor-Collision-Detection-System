@@ -1,0 +1,18 @@
+# Video files
+*.mp4
+
+# Dataset zip files
+Parking Vehicle Hit an Run Dataset.zip
+Road Accidents from CCTV Footages Dataset.zip
+
+# Python virtual environment
+.venv/
+
+# macOS system files
+.DS_Store
+._*
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
