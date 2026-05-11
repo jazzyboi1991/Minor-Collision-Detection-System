@@ -1,3 +1,9 @@
+# Dependencies
+node_modules/
+
+# Project specific
+Data/
+
 # Video files
 *.mp4
 
