@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+.venv/
+
+# Build outputs
+dist/
+dist-ssr/
+*.local
+
+# Project specific
+Data/
+
+# macOS system files
+.DS_Store
+._*
+
+# Python/Environment cache
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+.pytest_cache/
+
+# IDE files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
