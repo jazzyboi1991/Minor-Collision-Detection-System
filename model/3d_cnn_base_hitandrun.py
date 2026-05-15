@@ -10,8 +10,14 @@ Original file is located at
 from google.colab import drive
 drive.mount('/content/drive')
 
+# Colab용 환경설정
 # 필요한 경우 opencv 설치 (Colab에는 기본적으로 설치되어 있으나 확인용)
-# !pip install opencv-python
+!pip install opencv-python
+
+# Colab용 환경설정
+# 터미널 명령어로 원하는 경로(-p)에 kaggle 데이터셋 다운로드 및 압축 해제(--unzip)
+# 데이터셋이 없는 경우 다운로드 용도!
+!kaggle datasets download -d inwoohwang2/parking-vehicle-hit-an-run-dataset -p /content/drive/MyDrive/capstone-26 --unzip
 
 import os
 import cv2
@@ -20,7 +26,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, random_split
 import torchvision.transforms as transforms
 
 # ==========================================
@@ -33,31 +39,7 @@ class HitAndRunDataset(Dataset):
         self.r_value = r_value
         self.resize = resize
 
-        all_mp4_files = [f.split('.')[0] for f in os.listdir(data_dir) if f.endswith('.mp4')]
-        self.file_names = []
-        for file_name in all_mp4_files:
-            txt_path = os.path.join(self.data_dir, f"{file_name}.txt")
-            if not os.path.exists(txt_path):
-                print(f"Warning: Annotation file not found for {file_name}. Skipping.")
-                continue
-
-            # Check if the annotation file contains an 'A' or 'S' action
-            has_action = False
-            try:
-                with open(txt_path, 'r') as f:
-                    for line in f.readlines():
-                        parts = line.strip().split(',')
-                        if parts and len(parts) >= 2 and parts[0] in ['A', 'S']:
-                            has_action = True
-                            break
-            except Exception as e:
-                print(f"Error reading annotation file {txt_path}: {e}. Skipping.")
-                continue
-
-            if has_action:
-                self.file_names.append(file_name)
-            else:
-                print(f"Warning: No 'A' or 'S' action found in {txt_path}. Skipping.")
+        self.file_names = [f.split('.')[0] for f in os.listdir(data_dir) if f.endswith('.mp4')]
 
         self.transform = transforms.Compose([
             transforms.ToTensor(),
@@ -70,51 +52,75 @@ class HitAndRunDataset(Dataset):
     def _parse_annotation(self, txt_path):
         bboxes = {}
         action = None
-        with open(txt_path, 'r') as f:
-            for line in f.readlines():
-                parts = line.strip().split(',')
-                if not parts or len(parts) < 2: continue
-                if parts[0] == 'car':
-                    bboxes[int(parts[1])] = [int(parts[2]), int(parts[3]), int(parts[4]), int(parts[5])]
-                elif parts[0] in ['A', 'S']:
-                    action = parts
+        if os.path.exists(txt_path):
+            with open(txt_path, 'r') as f:
+                for line in f.readlines():
+                    parts = line.strip().split(',')
+                    if not parts or len(parts) < 2: continue
+                    if parts[0] == 'car':
+                        bboxes[int(parts[1])] = [int(parts[2]), int(parts[3]), int(parts[4]), int(parts[5])]
+                    elif parts[0] in ['A', 'S']:
+                        action = parts
         return bboxes, action
 
+    # [포인트 2 수정됨] 논문에 명시된 정사각형 제로 패딩 로직 적용
     def _crop_and_pad(self, frame, bbox, r):
         h, w, _ = frame.shape
         x_min, y_min, x_max, y_max = bbox
-        veh_w, veh_h = x_max - x_min, y_max - y_min
 
-        new_w, new_h = int(veh_w * r), int(veh_h * r)
-        cx, cy = x_min + veh_w // 2, y_min + veh_h // 2
+        # 1. 마진 r이 적용된 초기 너비와 높이 계산
+        veh_w, veh_h = (x_max - x_min) * r, (y_max - y_min) * r
+        cx, cy = x_min + (x_max - x_min) // 2, y_min + (y_max - y_min) // 2
 
-        new_x_min, new_y_min = cx - new_w // 2, cy - new_h // 2
-        new_x_max, new_y_max = cx + new_w // 2, cy + new_h // 2
+        # 2. 비율 왜곡 방지를 위해 가로/세로 중 더 '긴' 길이를 기준으로 정사각형(Square) 크기 결정
+        square_size = int(max(veh_w, veh_h))
 
+        # 3. 정사각형을 기준으로 새로운 크롭 좌표 설정
+        new_x_min, new_y_min = cx - square_size // 2, cy - square_size // 2
+        new_x_max, new_y_max = cx + square_size // 2, cy + square_size // 2
+
+        # 4. 화면 밖으로 넘어가는 부분을 제로 패딩하기 위해 크기 계산
         pad_left, pad_top = max(0, -new_x_min), max(0, -new_y_min)
         pad_right, pad_bottom = max(0, new_x_max - w), max(0, new_y_max - h)
 
+        # 5. 실제 영상에서 잘라낼 수 있는 유효 좌표
         valid_x_min, valid_y_min = max(0, new_x_min), max(0, new_y_min)
         valid_x_max, valid_y_max = min(w, new_x_max), min(h, new_y_max)
 
         cropped_frame = frame[valid_y_min:valid_y_max, valid_x_min:valid_x_max]
 
+        # 6. 빈 공간을 검은색(0)으로 패딩하여 완벽한 정사각형으로 만듦
         if pad_left > 0 or pad_top > 0 or pad_right > 0 or pad_bottom > 0:
             cropped_frame = np.pad(cropped_frame,
                                    ((pad_top, pad_bottom), (pad_left, pad_right), (0, 0)),
                                    mode='constant', constant_values=0)
 
+        # 7. 이제 찌그러짐 없이 224x224로 리사이즈
         return cv2.resize(cropped_frame, self.resize)
 
     def __getitem__(self, idx):
         file_name = self.file_names[idx]
-        mp4_path, txt_path = os.path.join(self.data_dir, f"{file_name}.mp4"), os.path.join(self.data_dir, f"{file_name}.txt")
+        mp4_path = os.path.join(self.data_dir, f"{file_name}.mp4")
+        txt_path = os.path.join(self.data_dir, f"{file_name}.txt")
 
         bboxes, action = self._parse_annotation(txt_path)
-        # At this point, 'action' is guaranteed not to be None due to filtering in __init__
-        class_str, target_id, start_f = action[0], int(action[1]), int(action[2])
+
+        # [포인트 1 수정됨] 라벨 누락 시 S 클래스로 자동 처리
+        if action is not None:
+            # Fix: Convert to float first, then to int to handle potential float strings
+            class_str, target_id, start_f = action[0], int(float(action[1])), int(float(action[2]))
+        else:
+            class_str = 'S'
+            target_id = 0
+            start_f = 0
+
         label = 1 if class_str == 'A' else 0
-        target_bbox = bboxes[target_id]
+
+        if target_id not in bboxes:
+            target_id = list(bboxes.keys())[0] if bboxes else 0
+            target_bbox = bboxes.get(target_id, [0, 0, 224, 224])
+        else:
+            target_bbox = bboxes[target_id]
 
         cap = cv2.VideoCapture(mp4_path)
         frames = []
@@ -194,77 +200,118 @@ class HitAndRun3DCNN(nn.Module):
 # ==========================================
 # [3단계] 학습 루프 및 Colab 실행
 # ==========================================
+# ==========================================
+# [수정] 조기 종료 클래스 (최상위 가중치 저장 기능 추가)
+# ==========================================
 class EarlyStopping:
-    def __init__(self, patience=10, delta=0):
+    def __init__(self, patience=10, delta=0, path='best_model.pth'):
         self.patience = patience
         self.delta = delta
+        self.path = path
+        self.counter = 0
         self.best_score = None
         self.early_stop = False
-        self.counter = 0
+        self.val_loss_min = float('inf')
 
-    def __call__(self, val_loss):
+    def __call__(self, val_loss, model):
         score = -val_loss
         if self.best_score is None:
             self.best_score = score
+            self.save_checkpoint(val_loss, model)
         elif score < self.best_score + self.delta:
             self.counter += 1
+            print(f'조기 종료 카운트: {self.counter} / {self.patience}')
             if self.counter >= self.patience:
                 self.early_stop = True
         else:
             self.best_score = score
+            self.save_checkpoint(val_loss, model)
             self.counter = 0
 
+    def save_checkpoint(self, val_loss, model):
+        '''검증 손실이 감소하면 모델을 저장합니다.'''
+        if val_loss < self.val_loss_min:
+            print(f'검증 손실 감소 ({self.val_loss_min:.6f} --> {val_loss:.6f}). 모델 저장 중...')
+            torch.save(model.state_dict(), self.path)
+            self.val_loss_min = val_loss
+
+# ==========================================
+# [수정] 검증 루프가 포함된 학습 함수
+# ==========================================
 def train_model(data_dir):
-    # Colab GPU 환경 강제 인식
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"✅ 사용 중인 디바이스: {device}")
-    if device.type != 'cuda':
-        print("⚠️ 경고: GPU가 활성화되지 않았습니다. Colab 런타임 유형을 확인하세요.")
 
-    # 데이터 로더 (논문 조건: r=1, clip_length=30, batch_size=15)
-    train_dataset = HitAndRunDataset(data_dir=data_dir, clip_length=30, r_value=1.0)
+    # 1. 데이터셋 로드 및 분할 (논문 기준 약 8:2 비율)
+    full_dataset = HitAndRunDataset(data_dir=data_dir, clip_length=30, r_value=1.0)
+    train_size = int(0.8 * len(full_dataset))
+    val_size = len(full_dataset) - train_size
+    train_subset, val_subset = random_split(full_dataset, [train_size, val_size])
 
-    # num_workers=2, pin_memory=True를 추가하여 GPU 데이터 전송 속도 최적화
-    train_loader = DataLoader(train_dataset, batch_size=15, shuffle=True, num_workers=2, pin_memory=True)
+    train_loader = DataLoader(train_subset, batch_size=15, shuffle=True, num_workers=2, pin_memory=True)
+    val_loader = DataLoader(val_subset, batch_size=15, shuffle=False, num_workers=2, pin_memory=True)
 
-    # 하이퍼파라미터 설정
     model = HitAndRun3DCNN(num_classes=2).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.00001)
-    early_stopping = EarlyStopping(patience=10)
-    num_epochs = 100
 
-    print("🚀 GPU 학습을 시작합니다...")
-    model.train()
+    # 조기 종료 객체 생성 (구글 드라이브 내 안전한 경로로 지정)
+    save_path = '/content/drive/MyDrive/capstone-26/best_hitandrun_model.pth'
+    early_stopping = EarlyStopping(patience=10, path=save_path)
+    # 에포크 수 설정
+    num_epochs = 5
 
     for epoch in range(num_epochs):
-        running_loss = 0.0
-
-        for batch_idx, (inputs, labels) in enumerate(train_loader):
-            # GPU 메모리로 텐서 이동
-            inputs, labels = inputs.to(device, non_blocking=True), labels.to(device, non_blocking=True)
-
+        # --- 학습 단계 ---
+        model.train()
+        train_loss = 0.0
+        for inputs, labels in train_loader:
+            inputs, labels = inputs.to(device), labels.to(device)
             optimizer.zero_grad()
             outputs = model(inputs)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
+            train_loss += loss.item() * inputs.size(0)
 
-            running_loss += loss.item()
+        avg_train_loss = train_loss / len(train_loader.dataset)
 
-        avg_loss = running_loss / len(train_loader)
-        print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss:.6f}")
+        # --- 검증 단계 (추가됨) ---
+        model.eval()
+        val_loss = 0.0
+        correct = 0
+        with torch.no_grad():
+            for inputs, labels in val_loader:
+                inputs, labels = inputs.to(device), labels.to(device)
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
+                val_loss += loss.item() * inputs.size(0)
 
-        # 실제 환경에서는 검증 Loss를 계산하여 early_stopping(val_loss) 호출
+                _, preds = torch.max(outputs, 1)
+                correct += torch.sum(preds == labels.data)
 
-    print("✨ 학습 완료!")
+        avg_val_loss = val_loss / len(val_loader.dataset)
+        val_acc = correct.double() / len(val_loader.dataset)
+
+        print(f'Epoch [{epoch+1}/{num_epochs}] '
+              f'Train Loss: {avg_train_loss:.4f} | '
+              f'Val Loss: {avg_val_loss:.4f} | Val Acc: {val_acc:.4f}')
+
+        # 조기 종료 체크 (검증 손실 기반)
+        early_stopping(avg_val_loss, model)
+
+        if early_stopping.early_stop:
+            print("🛑 조기 종료 조건 충족. 학습을 중단합니다.")
+            break
+
+    # 최적의 모델 가중치 다시 불러오기
+    model.load_state_dict(torch.load(save_path))
     return model
 
 # Colab 실행 진입점
 if __name__ == "__main__":
-    # TODO: 본인의 구글 드라이브 내 Kaggle 데이터셋 경로로 수정하세요.
-    # 예시: '/content/drive/MyDrive/Capstone/kaggle_dataset'
-    DATA_DIR = '/content/drive/MyDrive/capstone-26/sample'
+    # TODO: 본인의 구글 드라이브 내 Kaggle 데이터셋 경로로 설정하세요.
+    DATA_DIR = '/content/drive/MyDrive/capstone-26/dataset'
 
     # 폴더가 존재하는지 확인 후 학습 시작
     if os.path.exists(DATA_DIR):
@@ -280,9 +327,10 @@ import torch
 import numpy as np
 import torchvision.transforms as transforms
 import torch.nn.functional as F
+import os
 
 # ==========================================
-# 1. CAM 출력을 위한 특징 맵 추출기 (Hook) - 기존과 동일
+# 1. CAM 출력을 위한 특징 맵 추출기 (Hook)
 # ==========================================
 activation = {}
 def get_activation(name):
@@ -291,182 +339,164 @@ def get_activation(name):
     return hook
 
 # ==========================================
-# 2. [수정됨] 전체 화면 CAM 히트맵 생성 및 비디오 저장 함수
+# 2. 정사각형 패딩 + 라벨 프리 + 전체 화면 CAM 예측 함수
 # ==========================================
-def predict_and_generate_cam_full(model, video_path, txt_path, r_value=1.0, resize=(224, 224), manual_target_id=0):
-    print(f"[{video_path.split('/')[-1]}] 전체 화면 CAM 비디오 생성 준비 중...")
+def predict_hit_and_run_final(model, video_path, txt_path, target_id=0, r_value=1.0, resize=(224, 224)):
+    print(f"[{os.path.basename(video_path)}] 전체 화면 분석 시작...")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
 
+    # 모델의 마지막 특징 맵(inception3) 추출을 위한 Hook 등록
     handle = model.inception3.register_forward_hook(get_activation('inception3'))
 
-    # 1. 텍스트 파일 파싱
+    # 1. 텍스트 파일 파싱 (A/S 라벨 없이 car 좌표만 수집)
     bboxes = {}
-    target_id = None
+    if not os.path.exists(txt_path):
+        print(f"⚠️ 텍스트 파일을 찾을 수 없습니다: {txt_path}")
+        return
+
     with open(txt_path, 'r') as f:
         for line in f.readlines():
             parts = line.strip().split(',')
-            if len(parts) < 2: continue
-            if parts[0] == 'car':
+            if len(parts) >= 6 and parts[0] == 'car':
                 bboxes[int(parts[1])] = [int(parts[2]), int(parts[3]), int(parts[4]), int(parts[5])]
-            elif parts[0] in ['A', 'S']:
-                target_id = int(parts[1])
-
-    if target_id is None:
-        target_id = manual_target_id
 
     if target_id not in bboxes:
-        print("⚠️ 텍스트 파일에서 해당 차량의 좌표를 찾을 수 없습니다.")
+        print(f"⚠️ ID {target_id}번 차량의 좌표가 없습니다. 존재하는 ID: {list(bboxes.keys())}")
         return
 
     target_bbox = bboxes[target_id]
 
-    # 전처리 함수 (모델 입력을 위해 크롭된 텐서 반환)
-    def crop_and_pad(frame, bbox, r):
+    # 2. 비율 왜곡 방지 정사각형 패딩 함수
+    def crop_square_and_pad(frame, bbox, r):
         h, w, _ = frame.shape
         x_min, y_min, x_max, y_max = bbox
-        veh_w, veh_h = x_max - x_min, y_max - y_min
+        vw, vh = (x_max - x_min) * r, (y_max - y_min) * r
+        cx, cy = x_min + (x_max - x_min) // 2, y_min + (y_max - y_min) // 2
 
-        new_w, new_h = int(veh_w * r), int(veh_h * r)
-        cx, cy = x_min + veh_w // 2, y_min + veh_h // 2
+        # 가로/세로 중 긴 변을 기준으로 정사각형(Square) 크기 결정
+        side = int(max(vw, vh))
+        nx1, ny1 = cx - side // 2, cy - side // 2
+        nx2, ny2 = cx + side // 2, cy + side // 2
 
-        new_x_min, new_y_min = cx - new_w // 2, cy - new_h // 2
-        new_x_max, new_y_max = cx + new_w // 2, cy + new_h // 2
+        v_x1, v_y1 = max(0, nx1), max(0, ny1)
+        v_x2, v_y2 = min(w, nx2), min(h, ny2)
+        p_l, p_t = max(0, -nx1), max(0, -ny1)
+        p_r, p_b = max(0, nx2 - w), max(0, ny2 - h)
 
-        pad_left, pad_top = max(0, -new_x_min), max(0, -new_y_min)
-        pad_right, pad_bottom = max(0, new_x_max - w), max(0, new_y_max - h)
+        cropped = frame[v_y1:v_y2, v_x1:v_x2]
+        if p_l > 0 or p_t > 0 or p_r > 0 or p_b > 0:
+            cropped = np.pad(cropped, ((p_t, p_b), (p_l, p_r), (0, 0)), mode='constant')
+        return cv2.resize(cropped, resize), (nx1, ny1, nx2, ny2)
 
-        valid_x_min, valid_y_min = max(0, new_x_min), max(0, new_y_min)
-        valid_x_max, valid_y_max = min(w, new_x_max), min(h, new_y_max)
-
-        cropped_frame = frame[valid_y_min:valid_y_max, valid_x_min:valid_x_max]
-
-        if pad_left > 0 or pad_top > 0 or pad_right > 0 or pad_bottom > 0:
-            cropped_frame = np.pad(cropped_frame,
-                                   ((pad_top, pad_bottom), (pad_left, pad_right), (0, 0)),
-                                   mode='constant', constant_values=0)
-        return cv2.resize(cropped_frame, resize)
-
-    # 비디오 프레임 추출
+    # 3. 비디오 로드 및 전처리
     cap = cv2.VideoCapture(video_path)
-    original_full_frames = [] # [수정됨] 화면 합성용으로 '원본 전체 프레임'을 저장
-    tensor_frames = []        # 모델 입력용 텐서
-
+    original_full_frames = []
+    tensor_frames = []
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
+    # 역매핑을 위한 첫 프레임 좌표계 계산
+    ret, first_frame = cap.read()
+    if not ret: return
+    _, (rx1, ry1, rx2, ry2) = crop_square_and_pad(first_frame, target_bbox, r_value)
+    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
     while True:
         ret, frame = cap.read()
         if not ret: break
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-        # 1) 원본 전체 프레임 저장
         original_full_frames.append(frame_rgb)
-
-        # 2) 모델 입력용으로 크롭된 텐서 저장
-        processed_frame = crop_and_pad(frame_rgb, target_bbox, r_value)
-        tensor_frames.append(transform(processed_frame))
-
+        processed, _ = crop_square_and_pad(frame_rgb, target_bbox, r_value)
+        tensor_frames.append(transform(processed))
     cap.release()
 
-    total_frames = len(tensor_frames)
-    clip_length = 30
-
-    if total_frames < clip_length:
-        print("⚠️ 비디오 길이가 짧아 분석할 수 없습니다.")
-        return
-
     full_video_tensor = torch.stack(tensor_frames).permute(1, 0, 2, 3)
+    orig_h, orig_w = original_full_frames[0].shape[:2]
 
-    # ----------------------------------------------------
-    # [새로운 로직] 원본 좌표계 역산 및 매핑 계산
-    # ----------------------------------------------------
-    orig_h, orig_w, _ = original_full_frames[0].shape
-    x_min, y_min, x_max, y_max = target_bbox
-    veh_w, veh_h = x_max - x_min, y_max - y_min
+    # 4. 출력 비디오 저장 설정
+    out_path = f'/content/drive/MyDrive/capstone-26/predict_result/final_{os.path.basename(video_path)}'
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    out_video = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*'mp4v'), 30.0, (orig_w, orig_h))
 
-    # r 값(여기선 1.0)에 의해 확장/축소된 실제 Bounding Box 크기
-    new_w, new_h = int(veh_w * r_value), int(veh_h * r_value)
-    cx, cy = x_min + veh_w // 2, y_min + veh_h // 2
+    # 실제 화면에 표시될 유효 좌표
+    v_nx1, v_ny1 = max(0, rx1), max(0, ry1)
+    v_nx2, v_ny2 = min(orig_w, rx2), min(orig_h, ry2)
 
-    new_x_min, new_y_min = cx - new_w // 2, cy - new_h // 2
-    new_x_max, new_y_max = cx + new_w // 2, cy + new_h // 2
-
-    # 패딩 및 실제 유효 좌표 (원본 화면 내부 좌표)
-    pad_left, pad_top = max(0, -new_x_min), max(0, -new_y_min)
-    pad_right, pad_bottom = max(0, new_x_max - orig_w), max(0, new_y_max - orig_h)
-
-    valid_x_min, valid_y_min = max(0, new_x_min), max(0, new_y_min)
-    valid_x_max, valid_y_max = min(orig_w, new_x_max), min(orig_h, new_y_max)
-    # ----------------------------------------------------
-
-    # 비디오 저장 설정 (원본 해상도 유지)
-    out_path = '/content/drive/MyDrive/capstone-26/predict_result/output_cam_full.mp4'
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out_video = cv2.VideoWriter(out_path, fourcc, 30.0, (orig_w, orig_h))
-
-    print("🔍 슬라이딩 윈도우 및 CAM 연산 시작...")
-
-    # 처음 29프레임 출력 (타겟 차량 위치에 기본 초록색 박스만 표시)
-    for i in range(clip_length - 1):
-        frame_bgr = cv2.cvtColor(original_full_frames[i], cv2.COLOR_RGB2BGR)
-        cv2.rectangle(frame_bgr, (valid_x_min, valid_y_min), (valid_x_max, valid_y_max), (0, 255, 0), 2)
-        out_video.write(frame_bgr)
-
+    print("🔍 슬라이딩 윈도우 추론 및 히트맵 생성 중...")
     with torch.no_grad():
-        for i in range(total_frames - clip_length + 1):
-            clip = full_video_tensor[:, i:i+clip_length, :, :].unsqueeze(0).to(device)
-            outputs = model(clip)
-            pred_class = torch.argmax(outputs, dim=1).item()
+        for i in range(len(tensor_frames)):
+            if i < 29: # 첫 29프레임은 이전 기록이 부족하여 원본 뼈대만 출력
+                final_frame = cv2.cvtColor(original_full_frames[i], cv2.COLOR_RGB2BGR)
+                cv2.rectangle(final_frame, (v_nx1, v_ny1), (v_nx2, v_ny2), (0, 255, 0), 2)
+            else:
+                # 30프레임 슬라이딩 윈도우 적용
+                clip = full_video_tensor[:, i-29:i+1, :, :].unsqueeze(0).to(device)
+                outputs = model(clip)
+                probs = F.softmax(outputs, dim=1)
+                pred_class = torch.argmax(probs, dim=1).item()
+                conf = probs[0][pred_class].item() * 100
 
-            feat_map = activation['inception3'].squeeze(0)
-            weight = model.head_conv.weight[pred_class]
+                # CAM 계산 (가중치 * 특징 맵)
+                feat_map = activation['inception3'].squeeze(0)
+                weight = model.head_conv.weight[pred_class]
+                cam = torch.sum(weight * feat_map, dim=0)
+                cam = F.relu(cam)
+                cam_2d = torch.mean(cam, dim=0).cpu().numpy()
+                cam_2d = (cam_2d - cam_2d.min()) / (cam_2d.max() - cam_2d.min() + 1e-8)
 
-            cam = torch.sum(weight * feat_map, dim=0)
-            cam = F.relu(cam)
-            cam_2d = torch.mean(cam, dim=0).cpu().numpy()
+                # 히트맵 원본 해상도로 복원 및 자르기
+                heatmap = cv2.applyColorMap(np.uint8(255 * cam_2d), cv2.COLORMAP_JET)
+                heatmap = cv2.resize(heatmap, (rx2-rx1, ry2-ry1))
+                heatmap_valid = heatmap[v_ny1-ry1 : (v_ny1-ry1)+(v_ny2-v_ny1), v_nx1-rx1 : (v_nx1-rx1)+(v_nx2-v_nx1)]
 
-            # 0~255로 스케일링
-            cam_2d = cam_2d - np.min(cam_2d)
-            cam_2d = cam_2d / (np.max(cam_2d) + 1e-8)
-            cam_2d_uint8 = np.uint8(255 * cam_2d)
+                final_frame = cv2.cvtColor(original_full_frames[i], cv2.COLOR_RGB2BGR)
+                roi = final_frame[v_ny1:v_ny2, v_nx1:v_nx2]
 
-            # [수정됨] 224x224가 아닌 '차량의 실제 크기(new_w, new_h)'로 복원
-            cam_resized_padded = cv2.resize(cam_2d_uint8, (new_w, new_h))
+                # 충돌 감지 여부에 따른 시각화 처리
+                if pred_class == 1: # 충돌(A)
+                    final_frame[v_ny1:v_ny2, v_nx1:v_nx2] = cv2.addWeighted(roi, 0.6, heatmap_valid, 0.4, 0)
+                    color, label_text = (0, 0, 255), f"Accident ({conf:.1f}%)"
+                else: # 정상(S)
+                    color, label_text = (0, 255, 0), f"Normal ({conf:.1f}%)"
 
-            # 화면 밖으로 나갔던 패딩 영역을 잘라내어 유효한 히트맵 추출
-            cam_valid = cam_resized_padded[pad_top : new_h - pad_bottom, pad_left : new_w - pad_right]
-            heatmap = cv2.applyColorMap(cam_valid, cv2.COLORMAP_JET)
-
-            # 원본 전체 프레임 불러오기
-            final_frame = cv2.cvtColor(original_full_frames[i + clip_length - 1], cv2.COLOR_RGB2BGR).copy()
-            roi = final_frame[valid_y_min:valid_y_max, valid_x_min:valid_x_max]
-
-            if pred_class == 1: # 충돌 시
-                # 타겟 차량 위치(ROI)에만 히트맵 합성
-                blended_roi = cv2.addWeighted(roi, 0.6, heatmap, 0.4, 0)
-                final_frame[valid_y_min:valid_y_max, valid_x_min:valid_x_max] = blended_roi
-
-                # 시각적 강렬함을 위해 빨간색 바운딩 박스와 텍스트 표시
-                cv2.rectangle(final_frame, (valid_x_min, valid_y_min), (valid_x_max, valid_y_max), (0, 0, 255), 3)
-                cv2.putText(final_frame, 'CLASS: A (Collision)', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 3)
-            else: # 비충돌(정상) 시
-                cv2.rectangle(final_frame, (valid_x_min, valid_y_min), (valid_x_max, valid_y_max), (0, 255, 0), 2)
-                cv2.putText(final_frame, 'CLASS: S (Normal)', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 0, 0), 3)
+                cv2.rectangle(final_frame, (v_nx1, v_ny1), (v_nx2, v_ny2), color, 3)
+                cv2.putText(final_frame, label_text, (50, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, color, 3)
 
             out_video.write(final_frame)
 
     out_video.release()
     handle.remove()
-    print(f"✨ 전체 화면 CAM 비디오 생성 완료! 파일명: {out_path}")
+    print(f"✨ 분석 완료! 결과 파일: {out_path}")
 
 # ==========================================
-# 3. [실행부]
+# 3. [핵심] 가중치 불러오기 및 실행부
 # ==========================================
-TARGET_VIDEO_PATH = '/content/drive/MyDrive/capstone-26/sample/220510_LA_0001.mp4'
-TARGET_TXT_PATH = '/content/drive/MyDrive/capstone-26/sample/220510_LA_0001.txt'
+# ※ 주의: 이전에 HitAndRun3DCNN 클래스 코드가 실행되어 있어야 합니다.
 
-# 함수명 변경됨 (predict_and_generate_cam_full)
-predict_and_generate_cam_full(trained_model, TARGET_VIDEO_PATH, TARGET_TXT_PATH, r_value=1.0)
+# 저장된 가중치 파일 경로 지정
+WEIGHTS_PATH = '/content/drive/MyDrive/capstone-26/best_hitandrun_model.pth'
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# 1. 빈 모델 객체(껍데기) 생성
+loaded_model = HitAndRun3DCNN(num_classes=2).to(device)
+
+try:
+    # 2. 구글 드라이브에 저장된 가중치(.pth) 파일을 빈 모델에 덮어쓰기
+    loaded_model.load_state_dict(torch.load(WEIGHTS_PATH, map_location=device))
+    print("✅ 성공적으로 학습된 가중치(best_hitandrun_model.pth)를 불러왔습니다!")
+
+    # 3. 테스트할 타겟 영상과 텍스트 경로 지정
+    TARGET_VIDEO_PATH = '/content/drive/MyDrive/capstone-26/sample/220510_LA_0001.mp4'
+    TARGET_TXT_PATH = '/content/drive/MyDrive/capstone-26/sample/220510_LA_0001.txt'
+
+    # 4. 가중치가 장착된 모델을 활용하여 예측 실행
+    # target_id=0 은 텍스트 파일의 0번 차량을 추적하겠다는 의미입니다.
+    predict_hit_and_run_final(loaded_model, TARGET_VIDEO_PATH, TARGET_TXT_PATH, target_id=0)
+
+except FileNotFoundError:
+    print(f"⚠️ 에러: {WEIGHTS_PATH} 경로에 가중치 파일이 없습니다.")
+    print("경로가 정확한지 확인하시거나, 먼저 학습 코드를 실행하여 가중치 파일을 생성해 주세요.")
