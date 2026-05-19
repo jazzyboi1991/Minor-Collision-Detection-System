@@ -1,13 +1,23 @@
 import argparse
 import os
 import random
+import tempfile
 
-import cv2
-import numpy as np
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torchvision.transforms as transforms
+try:
+    import cv2
+    import numpy as np
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+    import torchvision.transforms as transforms
+except ModuleNotFoundError as error:
+    missing_package = error.name
+    raise SystemExit(
+        f"Missing dependency: {missing_package}\n"
+        "Install the CPU test dependencies first:\n"
+        "  pip install opencv-python numpy torch torchvision\n"
+        "This script does not require a GPU, but it does require these Python packages."
+    ) from error
 
 
 # Conv3D -> BatchNorm3D -> ReLU를 묶은 기본 블록입니다.
@@ -167,6 +177,9 @@ def predict_video(model, video_path, txt_path, device, target_id, r_value, resiz
 
 def evaluate(args):
     """폴더 안의 mp4/txt 쌍을 평가하고 정확도와 오답 목록을 출력합니다."""
+    if not args.weights:
+        raise ValueError("Model weights are required for full evaluation. Pass --weights path/to/model.pth.")
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = HitAndRun3DCNN(num_classes=2).to(device)
     model.load_state_dict(torch.load(args.weights, map_location=device))
@@ -209,17 +222,61 @@ def evaluate(args):
             print(f"- {name}: gt={gt_name}, pred={pred_name}")
 
 
+def run_cpu_smoke_test():
+    """GPU, 실제 영상, 가중치 없이 핵심 로직만 빠르게 검증합니다."""
+    device = torch.device("cpu")
+
+    # 1. 파일명에서 정답 라벨을 뽑는 규칙이 맞는지 확인합니다.
+    assert label_from_filename("220510_LA_0001.mp4") == 1
+    assert label_from_filename("220510_LS_0001.mp4") == 0
+    assert label_from_filename("220510_NV_0001.mp4") == 0
+
+    # 2. txt 라벨 파일에서 bbox를 읽고, target_id가 없을 때 첫 bbox로 fallback되는지 확인합니다.
+    with tempfile.TemporaryDirectory() as temp_dir:
+        txt_path = os.path.join(temp_dir, "sample.txt")
+        with open(txt_path, "w") as file:
+            file.write("car,0,10,20,50,70\n")
+            file.write("car,3,30,40,80,90\n")
+
+        assert read_bbox(txt_path, target_id=0) == [10, 20, 50, 70]
+        assert read_bbox(txt_path, target_id=99) == [10, 20, 50, 70]
+
+    # 3. crop 영역이 화면 밖으로 나가도 padding 후 원하는 크기로 나오는지 확인합니다.
+    frame = np.zeros((80, 120, 3), dtype=np.uint8)
+    cropped = crop_square_and_pad(frame, bbox=[-5, -5, 40, 30], r_value=1.2, resize=(32, 32))
+    assert cropped.shape == (32, 32, 3)
+
+    # 4. 모델이 CPU에서 작은 더미 clip을 받아 2개 클래스 logits를 내는지 확인합니다.
+    model = HitAndRun3DCNN(num_classes=2).to(device)
+    model.eval()
+    dummy_clip = torch.zeros((1, 3, 30, 64, 64), dtype=torch.float32, device=device)
+    with torch.no_grad():
+        output = model(dummy_clip)
+    assert output.shape == (1, 2)
+
+    print("CPU smoke test passed.")
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-dir", default="/Users/leezungzoo/Desktop/AI-develop/Sample")
-    parser.add_argument("--weights", required=True)
+    parser.add_argument("--weights", default=None)
     parser.add_argument("--samples", type=int, default=None)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--target-id", type=int, default=0)
     parser.add_argument("--r-value", type=float, default=1.0)
     parser.add_argument("--resize", type=int, default=224)
+    parser.add_argument(
+        "--cpu-smoke-test",
+        action="store_true",
+        help="Run lightweight software checks on CPU without real videos or model weights.",
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
-    evaluate(parse_args())
+    args = parse_args()
+    if args.cpu_smoke_test:
+        run_cpu_smoke_test()
+    else:
+        evaluate(args)
