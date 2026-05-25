@@ -9,6 +9,7 @@ dist-ssr/
 
 # Project specific
 Data/
+Predictions/
 
 # macOS system files
 .DS_Store
