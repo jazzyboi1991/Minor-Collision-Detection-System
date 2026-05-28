@@ -1,0 +1,65 @@
+# ================================================================
+# requirements.txt — Hit-and-Run 3D-CNN 프로젝트
+# ================================================================
+#
+# 권장 Python 버전: 3.11.x
+#   - 3.11이 PyTorch 2.4.x / torch-directml / numpy 2.x 모두와
+#     가장 안정적으로 호환됨
+#   - 3.12: torch-directml 지원 미검증, 일부 패키지 빌드 오류 가능
+#   - 3.10: 사용 가능하나 EOL(2026-10) 예정으로 미권장
+#
+# 권장 CUDA 버전 (향후 NVIDIA GPU 전환 시): 12.1
+#   - PyTorch 2.4.1 공식 지원 버전 중 가장 안정적
+#   - RTX 20/30/40 시리즈 및 Quadro/Data Center GPU 모두 호환
+#   - 12.4는 최신이나 드라이버·라이브러리 호환성 검증 부족
+#   - 11.8은 구형 GPU 전용으로 신규 프로젝트에 미권장
+#
+# ================================================================
+# [환경별 설치 방법]
+#
+# ① AMD GPU — Windows DirectML (현재 사용 중)
+#   pip install torch==2.4.1 torchvision==0.19.1 \
+#       --index-url https://download.pytorch.org/whl/cpu
+#   pip install torch-directml==0.2.5.dev240914
+#   pip install -r requirements.txt
+#
+# ② NVIDIA GPU — CUDA 12.1 (향후 전환 시)
+#   pip install torch==2.4.1+cu121 torchvision==0.19.1+cu121 \
+#       --index-url https://download.pytorch.org/whl/cu121
+#   pip install -r requirements.txt
+#
+# ③ CPU only
+#   pip install -r requirements.txt
+#
+# ※ torch / torchvision 은 아래 버전을 기본값으로 명시하지만,
+#    ①②의 경우 해당 명령어로 먼저 설치하면 아래 항목은 무시됨
+# ================================================================
+
+# ------ Core Deep Learning ------
+# torch-directml 0.2.x 와 호환되는 마지막 안정 버전
+# CUDA 전환 시에도 동일 버전 사용 가능 (cu121 빌드로 교체)
+torch==2.4.1
+torchvision==0.19.1
+
+# ------ 영상·이미지 처리 ------
+# 4.9 ~ 4.x: VideoCapture, VideoWriter, BGR↔RGB 변환, CAM 히트맵 등
+# 5.0은 API 변경 가능성 있어 상한 설정
+opencv-python>=4.9.0,<5.0
+
+# torchvision.transforms.functional (PIL Image 기반 데이터 증강)
+# 10.x: LANCZOS 상수 변경 등 Pillow 내부 API 정리 완료, 안정적
+Pillow>=10.3.0,<12.0
+
+# ------ 수치 연산 ------
+# torch 2.4.1은 numpy 1.x / 2.x 모두 지원
+# 1.26.4: 마지막 numpy 1.x LTS, 가장 광범위한 호환성
+# numpy 2.x 사용 시 일부 서드파티 라이브러리 호환성 확인 필요
+numpy>=1.26.4,<3.0
+
+# ------ 학습 진행 표시 ------
+tqdm>=4.66.0
+
+# ------ AMD GPU 백엔드 (Windows DirectML, 선택) ------
+# torch==2.4.1 과 반드시 함께 사용해야 함 (버전 고정 필수)
+# 설치 시 위 ① 방법 참고
+# torch-directml==0.2.5.dev240914
