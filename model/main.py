@@ -3,7 +3,7 @@ import torch
 
 import config
 from device_utils import get_device, is_cuda_like
-from model import HitAndRun3DCNN
+from hit_and_run import HitAndRun3DCNN
 
 
 def _load_model(weights_path):

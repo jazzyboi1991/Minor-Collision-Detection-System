@@ -123,6 +123,7 @@ class HitAndRunDataset(Dataset):
         # 비디오 전체에 동일한 crop 파라미터 적용
         do_crop = random.random() > 0.5
         h, w = self.resize[1], self.resize[0]
+        new_h, new_w, top, left = h, w, 0, 0  # 기본값: crop 없음 (전체 영역)
         if do_crop:
             crop_ratio = random.uniform(0.8, 1.0)
             new_h = int(h * crop_ratio)

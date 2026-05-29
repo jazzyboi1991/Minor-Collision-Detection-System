@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, random_split
 import config
 from dataset import HitAndRunDataset
 from device_utils import get_device, is_cuda_like
-from model import HitAndRun3DCNN
+from hit_and_run import HitAndRun3DCNN
 
 
 class EarlyStopping:
