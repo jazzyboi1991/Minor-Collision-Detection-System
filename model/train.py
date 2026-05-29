@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader, random_split
 
 import config
 from dataset import HitAndRunDataset
-from device_utils import get_device, is_cuda_like
+from device_utils import get_device, is_cuda_like, is_channels_last_3d_supported
 from hit_and_run import HitAndRun3DCNN
 
 
@@ -44,8 +44,12 @@ class EarlyStopping:
 
 
 def _make_loader(dataset, batch_size, shuffle, device):
-    # ① Ryzen 7 5700X(16스레드) 기준 워커 수 증가 — 3D 영상 디코딩은 CPU 집약적
-    num_workers = min(8, os.cpu_count() or 2)
+    # CUDA: 멀티워커 + prefetch 활성화 (① Ryzen 7 5700X 16스레드 기준)
+    # CPU : Windows 멀티프로세싱 충돌 방지 및 디바이스 컨텍스트 공유 불가 문제로 단일 프로세스 사용
+    if is_cuda_like(device):
+        num_workers = min(8, os.cpu_count() or 2)
+    else:
+        num_workers = 0
     kwargs = {
         'batch_size': batch_size,
         'shuffle': shuffle,
@@ -95,9 +99,10 @@ def train_model(
 
     model = HitAndRun3DCNN(num_classes=num_classes).to(device)
 
-    # channels_last_3d, AMP, GradScaler는 CUDA 계열에서만 지원
-    channels_last_enabled = use_channels_last and cuda_like
+    # AMP, GradScaler: CUDA/ROCm 공통 지원
+    # channels_last_3d: NVIDIA CUDA 전용 (ROCm 미지원)
     amp_enabled = use_amp and cuda_like
+    channels_last_enabled = use_channels_last and is_channels_last_3d_supported(device)
 
     if channels_last_enabled:
         model = model.to(memory_format=torch.channels_last_3d)

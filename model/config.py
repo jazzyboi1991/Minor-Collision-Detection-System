@@ -9,10 +9,10 @@ from pathlib import Path
 _ROOT = Path(__file__).resolve().parent.parent
 
 # ---------- 디바이스 설정 ----------
-# "directml" : AMD GPU (Windows) — pip install torch-directml 필요
-# "cuda"     : NVIDIA GPU 또는 AMD GPU (Linux, ROCm PyTorch 빌드)
-# "cpu"      : CPU
-DEVICE_TYPE = "directml"
+# "cuda" : AMD GPU (Linux/WSL2, ROCm PyTorch 빌드) ← 현재 설정
+#          또는 NVIDIA GPU (CUDA PyTorch 빌드)
+# "cpu"  : CPU
+DEVICE_TYPE = "cuda"
 
 # ---------- 공통 설정 ----------
 DATA_DIR = _ROOT / "data" / "train"

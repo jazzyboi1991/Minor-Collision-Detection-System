@@ -2,14 +2,14 @@ import argparse
 import torch
 
 import config
-from device_utils import get_device, is_cuda_like
+from device_utils import get_device, is_channels_last_3d_supported
 from hit_and_run import HitAndRun3DCNN
 
 
 def _load_model(weights_path):
     device = get_device()
     model = HitAndRun3DCNN(num_classes=config.MODEL_NUM_CLASSES).to(device)
-    if is_cuda_like(device) and config.USE_CHANNELS_LAST:
+    if is_channels_last_3d_supported(device) and config.USE_CHANNELS_LAST:
         model = model.to(memory_format=torch.channels_last_3d)
     try:
         # DirectML은 map_location 직접 지원이 불안정하므로 CPU 경유 로드

@@ -6,7 +6,7 @@ import random
 from tqdm import tqdm
 
 import config
-from device_utils import is_cuda_like
+from device_utils import is_cuda_like, is_channels_last_3d_supported
 
 
 def evaluate_folder_accuracy(
@@ -122,7 +122,7 @@ def evaluate_folder_accuracy(
                 batch_window_starts = window_starts[batch_start:batch_start + infer_batch_size]
                 # 이미 GPU에 있는 텐서 슬라이싱 — .to() 호출 없음
                 clips = torch.stack([full_video_tensor[:, i:i+clip_length, :, :] for i in batch_window_starts])
-                if is_cuda_like(device):
+                if is_channels_last_3d_supported(device):
                     clips = clips.contiguous(memory_format=torch.channels_last_3d)
 
                 outputs = model(clips)

@@ -8,7 +8,7 @@ import torch.nn.functional as F
 from pathlib import Path
 
 import config
-from device_utils import is_cuda_like
+from device_utils import is_cuda_like, is_channels_last_3d_supported
 
 
 activation = {}
@@ -179,7 +179,7 @@ def predict_hit_and_run_final(
                 # ④ 이미 GPU에 있는 텐서 슬라이싱 — .to() 호출 없음
                 clips = torch.stack(
                     [full_video_tensor[:, i:i + clip_length, :, :] for i in batch_window_starts])
-                if is_cuda_like(device):
+                if is_channels_last_3d_supported(device):
                     clips = clips.contiguous(
                         memory_format=torch.channels_last_3d)
 
