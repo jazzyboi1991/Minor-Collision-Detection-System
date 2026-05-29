@@ -7,9 +7,17 @@ import torchvision.transforms.functional as TF
 from torch.utils.data import Dataset
 from PIL import Image
 
+import config
+
 
 class HitAndRunDataset(Dataset):
-    def __init__(self, data_dir, clip_length=30, r_value=1.0, resize=(224, 224)):
+    def __init__(
+        self,
+        data_dir=config.DATA_DIR,
+        clip_length=config.CLIP_LENGTH,
+        r_value=config.R_VALUE,
+        resize=config.RESIZE,
+    ):
         self.data_dir = data_dir
         self.clip_length = clip_length
         self.r_value = r_value
@@ -41,7 +49,7 @@ class HitAndRunDataset(Dataset):
 
             if target_id not in bboxes:
                 target_id = next(iter(bboxes), 0)
-            target_bbox = bboxes.get(target_id, [0, 0, 224, 224])
+            target_bbox = bboxes.get(target_id, [0, 0, self.resize[0], self.resize[1]])
             label = 1 if class_str == 'A' else 0
 
             samples.append({

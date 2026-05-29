@@ -30,6 +30,7 @@ TRAIN_BATCH_SIZE = 15
 TRAIN_NUM_EPOCHS = 100
 TRAIN_SPLIT_RATIO = 0.8
 TRAIN_EARLY_STOPPING_PATIENCE = 10
+TRAIN_LEARNING_RATE = 0.00001
 
 # ---------- 단일 영상 예측/CAM 출력 전용 ----------
 PREDICT_WEIGHTS_PATH = _ROOT / "weights" / "hitandrun_model_best.pth"

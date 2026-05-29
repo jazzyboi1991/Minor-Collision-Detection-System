@@ -5,18 +5,20 @@ import numpy as np
 import random
 from tqdm import tqdm
 
+import config
 from device_utils import is_cuda_like
 
 
 def evaluate_folder_accuracy(
     model,
-    folder_path,
-    target_id=0,
-    r_value=1.0,
-    resize=(224, 224),
-    num_samples=None,
-    infer_batch_size=32,
-    window_stride=3,
+    folder_path=config.EVAL_FOLDER_PATH,
+    target_id=config.TARGET_ID,
+    r_value=config.R_VALUE,
+    resize=config.RESIZE,
+    clip_length=config.CLIP_LENGTH,
+    num_samples=config.EVAL_NUM_SAMPLES,
+    infer_batch_size=config.EVAL_INFER_BATCH_SIZE,
+    window_stride=config.EVAL_WINDOW_STRIDE,
 ):
     folder_path = str(folder_path)
     print(f"[{folder_path}] 폴더의 영상 평가를 준비합니다...")
@@ -107,19 +109,19 @@ def evaluate_folder_accuracy(
                 frames.append(crop_square_and_pad(frame_rgb, target_bbox, r_value))
             cap.release()
 
-            while len(frames) < 30:
+            while len(frames) < clip_length:
                 frames.append(frames[-1] if frames else np.zeros((resize[1], resize[0], 3), dtype=np.uint8))
 
             # ⑦ 영상 텐서를 처음부터 GPU에 상주 — 배치마다 .to(device) 전송 제거
             full_video_tensor = frames_to_tensor(frames).to(device)
             predicted_label = 0
-            num_windows = len(frames) - 29
+            num_windows = len(frames) - (clip_length - 1)
             window_starts = list(range(0, num_windows, window_stride))
 
             for batch_start in range(0, len(window_starts), infer_batch_size):
                 batch_window_starts = window_starts[batch_start:batch_start + infer_batch_size]
                 # 이미 GPU에 있는 텐서 슬라이싱 — .to() 호출 없음
-                clips = torch.stack([full_video_tensor[:, i:i+30, :, :] for i in batch_window_starts])
+                clips = torch.stack([full_video_tensor[:, i:i+clip_length, :, :] for i in batch_window_starts])
                 if is_cuda_like(device):
                     clips = clips.contiguous(memory_format=torch.channels_last_3d)
 

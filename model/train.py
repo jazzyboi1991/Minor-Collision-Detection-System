@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
 
+import config
 from dataset import HitAndRunDataset
 from device_utils import get_device, is_cuda_like
 from model import HitAndRun3DCNN
@@ -36,7 +37,8 @@ class EarlyStopping:
 
     def save_checkpoint(self, val_loss, model):
         if val_loss < self.val_loss_min:
-            print(f'검증 손실 감소 ({self.val_loss_min:.6f} --> {val_loss:.6f}). 모델 저장 중...')
+            print(
+                f'검증 손실 감소 ({self.val_loss_min:.6f} --> {val_loss:.6f}). 모델 저장 중...')
             torch.save(model.state_dict(), self.path)
             self.val_loss_min = val_loss
 
@@ -57,17 +59,19 @@ def _make_loader(dataset, batch_size, shuffle, device):
 
 
 def train_model(
-    data_dir,
-    batch_size=15,
-    num_epochs=5,
-    clip_length=30,
-    r_value=1.0,
-    resize=(224, 224),
-    save_path='best_model.pth',
-    train_split_ratio=0.8,
-    early_stopping_patience=10,
-    use_amp=True,
-    use_channels_last=True,
+    data_dir=config.DATA_DIR,
+    num_classes=config.MODEL_NUM_CLASSES,
+    batch_size=config.TRAIN_BATCH_SIZE,
+    num_epochs=config.TRAIN_NUM_EPOCHS,
+    clip_length=config.CLIP_LENGTH,
+    r_value=config.R_VALUE,
+    resize=config.RESIZE,
+    save_path=config.TRAIN_BEST_MODEL_SAVE_PATH,
+    train_split_ratio=config.TRAIN_SPLIT_RATIO,
+    early_stopping_patience=config.TRAIN_EARLY_STOPPING_PATIENCE,
+    learning_rate=config.TRAIN_LEARNING_RATE,
+    use_amp=config.USE_AMP,
+    use_channels_last=config.USE_CHANNELS_LAST,
 ):
     device = get_device()
     cuda_like = is_cuda_like(device)
@@ -81,12 +85,15 @@ def train_model(
     )
     train_size = int(train_split_ratio * len(full_dataset))
     val_size = len(full_dataset) - train_size
-    train_subset, val_subset = random_split(full_dataset, [train_size, val_size])
+    train_subset, val_subset = random_split(
+        full_dataset, [train_size, val_size])
 
-    train_loader = _make_loader(train_subset, batch_size=batch_size, shuffle=True, device=device)
-    val_loader = _make_loader(val_subset, batch_size=batch_size, shuffle=False, device=device)
+    train_loader = _make_loader(
+        train_subset, batch_size=batch_size, shuffle=True, device=device)
+    val_loader = _make_loader(
+        val_subset, batch_size=batch_size, shuffle=False, device=device)
 
-    model = HitAndRun3DCNN(num_classes=2).to(device)
+    model = HitAndRun3DCNN(num_classes=num_classes).to(device)
 
     # channels_last_3d, AMP, GradScaler는 CUDA 계열에서만 지원
     channels_last_enabled = use_channels_last and cuda_like
@@ -96,12 +103,13 @@ def train_model(
         model = model.to(memory_format=torch.channels_last_3d)
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.00001)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     if amp_enabled:
         scaler = torch.amp.GradScaler("cuda")
 
-    early_stopping = EarlyStopping(patience=early_stopping_patience, path=save_path)
+    early_stopping = EarlyStopping(
+        patience=early_stopping_patience, path=save_path)
 
     for epoch in range(num_epochs):
         model.train()
@@ -111,7 +119,8 @@ def train_model(
             inputs = inputs.to(device, non_blocking=non_blocking)
             labels = labels.to(device, non_blocking=non_blocking)
             if channels_last_enabled:
-                inputs = inputs.contiguous(memory_format=torch.channels_last_3d)
+                inputs = inputs.contiguous(
+                    memory_format=torch.channels_last_3d)
 
             optimizer.zero_grad(set_to_none=True)
 
@@ -141,7 +150,8 @@ def train_model(
                 inputs = inputs.to(device, non_blocking=non_blocking)
                 labels = labels.to(device, non_blocking=non_blocking)
                 if channels_last_enabled:
-                    inputs = inputs.contiguous(memory_format=torch.channels_last_3d)
+                    inputs = inputs.contiguous(
+                        memory_format=torch.channels_last_3d)
 
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
@@ -160,7 +170,7 @@ def train_model(
             break
 
     # DirectML은 map_location 직접 지원이 불안정하므로 CPU 경유 로드
-    state_dict = torch.load(save_path, map_location='cpu')
+    state_dict = torch.load(save_path, map_location='cpu', weights_only=True)
     model.load_state_dict(state_dict)
     model.to(device)
     return model

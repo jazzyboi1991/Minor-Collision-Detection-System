@@ -7,6 +7,7 @@ import numpy as np
 import torch.nn.functional as F
 from pathlib import Path
 
+import config
 from device_utils import is_cuda_like
 
 
@@ -59,19 +60,18 @@ def _video_writer_worker(q, out_video):
 
 def predict_hit_and_run_final(
     model,
-    video_path,
-    txt_path,
-    target_id=0,
-    r_value=1.0,
-    resize=(224, 224),
-    output_dir=None,
-    infer_batch_size=16,
-    window_stride=3,
+    video_path=config.PREDICT_VIDEO_PATH,
+    txt_path=config.PREDICT_TXT_PATH,
+    target_id=config.TARGET_ID,
+    r_value=config.R_VALUE,
+    resize=config.RESIZE,
+    clip_length=config.CLIP_LENGTH,
+    output_dir=config.PREDICT_OUTPUT_DIR,
+    infer_batch_size=config.PREDICT_INFER_BATCH_SIZE,
+    window_stride=config.PREDICT_WINDOW_STRIDE,
 ):
     video_path = str(video_path)
     txt_path = str(txt_path)
-    if output_dir is None:
-        raise ValueError("output_dir을 지정해야 합니다.")
     output_dir = Path(output_dir)
 
     print(f"[{os.path.basename(video_path)}] 전체 화면 분석 시작...")
@@ -134,7 +134,7 @@ def predict_hit_and_run_final(
         if not processed_frames:
             return
 
-        while len(processed_frames) < 30:
+        while len(processed_frames) < clip_length:
             processed_frames.append(processed_frames[-1])
             original_full_frames.append(original_full_frames[-1])
 
@@ -161,14 +161,14 @@ def predict_hit_and_run_final(
         v_nx1, v_ny1 = max(0, rx1), max(0, ry1)
         v_nx2, v_ny2 = min(orig_w, rx2), min(orig_h, ry2)
 
-        for i in range(min(29, len(original_full_frames))):
+        for i in range(min(clip_length - 1, len(original_full_frames))):
             f = cv2.cvtColor(original_full_frames[i], cv2.COLOR_RGB2BGR)
             cv2.rectangle(f, (v_nx1, v_ny1), (v_nx2, v_ny2), (0, 255, 0), 2)
             write_queue.put(f)
-        next_frame_to_write = min(29, len(original_full_frames))
+        next_frame_to_write = min(clip_length - 1, len(original_full_frames))
 
         print(f"배치 슬라이딩 윈도우 추론 및 히트맵 생성 중... (stride={window_stride})")
-        num_windows = full_video_tensor.size(1) - 29
+        num_windows = full_video_tensor.size(1) - (clip_length - 1)
         window_starts = list(range(0, num_windows, window_stride))
 
         with torch.inference_mode():
@@ -178,7 +178,7 @@ def predict_hit_and_run_final(
 
                 # ④ 이미 GPU에 있는 텐서 슬라이싱 — .to() 호출 없음
                 clips = torch.stack(
-                    [full_video_tensor[:, i:i + 30, :, :] for i in batch_window_starts])
+                    [full_video_tensor[:, i:i + clip_length, :, :] for i in batch_window_starts])
                 if is_cuda_like(device):
                     clips = clips.contiguous(
                         memory_format=torch.channels_last_3d)
