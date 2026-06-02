@@ -54,7 +54,7 @@ class Simple3DCNN(nn.Module):
         # 입력:
         # (B, T, C, H, W)
 
-        x = x.permute(0,2,1,3,4)
+        x = x.permute(0, 2, 1, 3, 4).contiguous()
 
         # 변환:
         # (B, C, T, H, W)

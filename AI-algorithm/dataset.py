@@ -17,18 +17,23 @@ class CollisionDataset(Dataset):
 
         item = self.data[idx]
 
-        frames = torch.tensor(
+        frames = torch.as_tensor(
             item['frames'],
             dtype=torch.float32
         )
 
         # (T,H,W,C) → (T,C,H,W)
         if frames.shape[-1] == 3:
-            frames = frames.permute(0,3,1,2)
+            frames = frames.permute(0, 3, 1, 2)
+
+        if frames.ndim != 4:
+            raise ValueError(
+                f"Expected frames to have 4 dimensions, got shape {tuple(frames.shape)}"
+            )
 
         frames = frames / 255.0
 
-        label = torch.tensor(
+        label = torch.as_tensor(
             item['label'],
             dtype=torch.long
         )
