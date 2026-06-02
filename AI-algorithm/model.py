@@ -2,65 +2,38 @@ import torch
 import torch.nn as nn
 
 
-class Simple3DCNN(nn.Module):
-
+class TemporalCollisionCNN(nn.Module):
     def __init__(self, num_classes=2):
-        super(Simple3DCNN, self).__init__()
+        super().__init__()
 
         self.features = nn.Sequential(
-
-            nn.Conv3d(
-                in_channels=3,
-                out_channels=32,
-                kernel_size=(3,3,3),
-                padding=1
-            ),
+            nn.Conv3d(3, 32, kernel_size=3, padding=1),
             nn.BatchNorm3d(32),
             nn.ReLU(),
-            nn.MaxPool3d((1,2,2)),
+            nn.MaxPool3d((1, 2, 2)),
 
-
-            nn.Conv3d(
-                32,
-                64,
-                kernel_size=(3,3,3),
-                padding=1
-            ),
+            nn.Conv3d(32, 64, kernel_size=3, padding=1),
             nn.BatchNorm3d(64),
             nn.ReLU(),
-            nn.MaxPool3d((2,2,2)),
+            nn.MaxPool3d((1, 2, 2)),
 
-
-            nn.Conv3d(
-                64,
-                128,
-                kernel_size=(3,3,3),
-                padding=1
-            ),
+            nn.Conv3d(64, 128, kernel_size=3, padding=1),
             nn.BatchNorm3d(128),
             nn.ReLU(),
-
-            nn.AdaptiveAvgPool3d((1,1,1))
         )
 
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Dropout(0.3),
-            nn.Linear(128, num_classes)
-        )
+        self.temporal_head = nn.Conv1d(128, num_classes, kernel_size=3, padding=1)
 
     def forward(self, x):
-
-        # 입력:
-        # (B, T, C, H, W)
-
+        # (B, T, C, H, W) -> (B, C, T, H, W)
         x = x.permute(0, 2, 1, 3, 4).contiguous()
-
-        # 변환:
-        # (B, C, T, H, W)
 
         x = self.features(x)
 
-        x = self.classifier(x)
+        # 공간만 평균: (B, C, T, H, W) -> (B, C, T)
+        x = x.mean(dim=[3, 4])
+
+        # 시간별 예측: (B, C, T) -> (B, num_classes, T)
+        x = self.temporal_head(x)
 
         return x

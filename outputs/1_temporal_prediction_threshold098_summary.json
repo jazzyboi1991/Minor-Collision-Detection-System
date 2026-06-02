@@ -1,0 +1,24 @@
+{
+  "video": "/Users/leezungzoo/Desktop/model/Minor-Collision-Detection-System/AI-algorithm/1.mp4",
+  "model": "/Users/leezungzoo/Desktop/model/Minor-Collision-Detection-System/AI-algorithm/benchmark_epoch1_model.pth",
+  "architecture": "TemporalCollisionCNN",
+  "weight_loading": {
+    "loaded_feature_keys": 21,
+    "missing_keys": [
+      "temporal_head.weight",
+      "temporal_head.bias"
+    ],
+    "unexpected_keys": [],
+    "classifier_transferred_to_temporal_head": true
+  },
+  "frames": 634,
+  "fps": 41.8942731277533,
+  "duration_sec": 15.133333333333335,
+  "threshold": 0.98,
+  "min_collision_prob": 0.8991068005561829,
+  "max_collision_prob": 0.986248791217804,
+  "mean_collision_prob": 0.9707539677619934,
+  "hit_frame_count": 77,
+  "first_hit_frame": 1,
+  "first_hit_time_sec": 0.023869610935856996
+}
