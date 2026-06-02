@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, random_split
 import config
 from dataset import HitAndRunDataset
 from device_utils import get_device, is_cuda_like, is_channels_last_3d_supported
-from hit_and_run import HitAndRun3DCNN
+from hitandrun_model import HitAndRun3DCNN
 
 
 class EarlyStopping:
@@ -102,7 +102,8 @@ def train_model(
     # AMP, GradScaler: CUDA/ROCm 공통 지원
     # channels_last_3d: NVIDIA CUDA 전용 (ROCm 미지원)
     amp_enabled = use_amp and cuda_like
-    channels_last_enabled = use_channels_last and is_channels_last_3d_supported(device)
+    channels_last_enabled = use_channels_last and is_channels_last_3d_supported(
+        device)
 
     if channels_last_enabled:
         model = model.to(memory_format=torch.channels_last_3d)

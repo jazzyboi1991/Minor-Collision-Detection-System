@@ -3,7 +3,7 @@ import torch
 
 import config
 from device_utils import get_device, is_channels_last_3d_supported
-from hit_and_run import HitAndRun3DCNN
+from hitandrun_model import HitAndRun3DCNN
 
 
 def _load_model(weights_path):
@@ -13,7 +13,8 @@ def _load_model(weights_path):
         model = model.to(memory_format=torch.channels_last_3d)
     try:
         # DirectML은 map_location 직접 지원이 불안정하므로 CPU 경유 로드
-        state_dict = torch.load(weights_path, map_location='cpu', weights_only=True)
+        state_dict = torch.load(
+            weights_path, map_location='cpu', weights_only=True)
         model.load_state_dict(state_dict)
         print(f"가중치 로드 완료: {weights_path}")
     except FileNotFoundError:
