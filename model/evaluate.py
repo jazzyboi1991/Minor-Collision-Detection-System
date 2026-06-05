@@ -29,8 +29,10 @@ def evaluate_folder_accuracy(
     if is_cuda_like(device):
         torch.backends.cudnn.benchmark = True
 
-    mean = torch.tensor([0.485, 0.456, 0.406], dtype=torch.float32).view(3, 1, 1, 1)
-    std = torch.tensor([0.229, 0.224, 0.225], dtype=torch.float32).view(3, 1, 1, 1)
+    mean = torch.tensor([0.485, 0.456, 0.406],
+                        dtype=torch.float32).view(3, 1, 1, 1)
+    std = torch.tensor([0.229, 0.224, 0.225],
+                       dtype=torch.float32).view(3, 1, 1, 1)
 
     def crop_square_and_pad(frame, bbox, r):
         h, w, _ = frame.shape
@@ -46,7 +48,8 @@ def evaluate_folder_accuracy(
         p_r, p_b = max(0, nx2 - w), max(0, ny2 - h)
         cropped = frame[v_y1:v_y2, v_x1:v_x2]
         if p_l > 0 or p_t > 0 or p_r > 0 or p_b > 0:
-            cropped = np.pad(cropped, ((p_t, p_b), (p_l, p_r), (0, 0)), mode='constant')
+            cropped = np.pad(
+                cropped, ((p_t, p_b), (p_l, p_r), (0, 0)), mode='constant')
         return cv2.resize(cropped, resize, interpolation=cv2.INTER_LINEAR)
 
     def frames_to_tensor(frames):
@@ -57,7 +60,8 @@ def evaluate_folder_accuracy(
     all_files = os.listdir(folder_path)
     all_files_set = set(all_files)
     mp4_files = [f for f in all_files if f.endswith('.mp4')]
-    valid_pairs = [mp4 for mp4 in mp4_files if f"{mp4.rsplit('.', 1)[0]}.txt" in all_files_set]
+    valid_pairs = [
+        mp4 for mp4 in mp4_files if f"{mp4.rsplit('.', 1)[0]}.txt" in all_files_set]
 
     if not valid_pairs:
         print("평가할 수 있는 영상-텍스트 짝이 없습니다.")
@@ -82,7 +86,8 @@ def evaluate_folder_accuracy(
             txt_path = os.path.join(folder_path, f"{base_name}.txt")
 
             parts = base_name.split('_')
-            is_accident_gt = len(parts) >= 2 and len(parts[1]) == 2 and parts[1][1] == 'A'
+            is_accident_gt = len(parts) >= 2 and len(
+                parts[1]) == 2 and parts[1][1] == 'A'
             gt_label = 1 if is_accident_gt else 0
 
             bboxes = {}
@@ -90,7 +95,8 @@ def evaluate_folder_accuracy(
                 for line in f:
                     l_parts = line.strip().split(',')
                     if len(l_parts) >= 6 and l_parts[0] == 'car':
-                        bboxes[int(l_parts[1])] = [int(l_parts[2]), int(l_parts[3]), int(l_parts[4]), int(l_parts[5])]
+                        bboxes[int(l_parts[1])] = [int(l_parts[2]), int(
+                            l_parts[3]), int(l_parts[4]), int(l_parts[5])]
 
             if target_id not in bboxes:
                 if not bboxes:
@@ -106,11 +112,13 @@ def evaluate_folder_accuracy(
                 if not ret:
                     break
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                frames.append(crop_square_and_pad(frame_rgb, target_bbox, r_value))
+                frames.append(crop_square_and_pad(
+                    frame_rgb, target_bbox, r_value))
             cap.release()
 
             while len(frames) < clip_length:
-                frames.append(frames[-1] if frames else np.zeros((resize[1], resize[0], 3), dtype=np.uint8))
+                frames.append(
+                    frames[-1] if frames else np.zeros((resize[1], resize[0], 3), dtype=np.uint8))
 
             # ⑦ 영상 텐서를 처음부터 GPU에 상주 — 배치마다 .to(device) 전송 제거
             full_video_tensor = frames_to_tensor(frames).to(device)
@@ -119,11 +127,14 @@ def evaluate_folder_accuracy(
             window_starts = list(range(0, num_windows, window_stride))
 
             for batch_start in range(0, len(window_starts), infer_batch_size):
-                batch_window_starts = window_starts[batch_start:batch_start + infer_batch_size]
+                batch_window_starts = window_starts[batch_start:batch_start +
+                                                    infer_batch_size]
                 # 이미 GPU에 있는 텐서 슬라이싱 — .to() 호출 없음
-                clips = torch.stack([full_video_tensor[:, i:i+clip_length, :, :] for i in batch_window_starts])
+                clips = torch.stack(
+                    [full_video_tensor[:, i:i+clip_length, :, :] for i in batch_window_starts])
                 if is_channels_last_3d_supported(device):
-                    clips = clips.contiguous(memory_format=torch.channels_last_3d)
+                    clips = clips.contiguous(
+                        memory_format=torch.channels_last_3d)
 
                 outputs = model(clips)
                 pred_classes = outputs.argmax(dim=1)

@@ -22,10 +22,13 @@ class HitAndRunDataset(Dataset):
         self.clip_length = clip_length
         self.r_value = r_value
         self.resize = resize
-        self.mean = torch.tensor([0.485, 0.456, 0.406], dtype=torch.float32).view(3, 1, 1, 1)
-        self.std = torch.tensor([0.229, 0.224, 0.225], dtype=torch.float32).view(3, 1, 1, 1)
+        self.mean = torch.tensor(
+            [0.485, 0.456, 0.406], dtype=torch.float32).view(3, 1, 1, 1)
+        self.std = torch.tensor([0.229, 0.224, 0.225],
+                                dtype=torch.float32).view(3, 1, 1, 1)
 
-        self.file_names = sorted(f.rsplit('.', 1)[0] for f in os.listdir(data_dir) if f.endswith('.mp4'))
+        self.file_names = sorted(f.rsplit('.', 1)[0] for f in os.listdir(
+            data_dir) if f.endswith('.mp4'))
         self.samples = self._build_index()
 
     def __len__(self):
@@ -49,7 +52,8 @@ class HitAndRunDataset(Dataset):
 
             if target_id not in bboxes:
                 target_id = next(iter(bboxes), 0)
-            target_bbox = bboxes.get(target_id, [0, 0, self.resize[0], self.resize[1]])
+            target_bbox = bboxes.get(
+                target_id, [0, 0, self.resize[0], self.resize[1]])
             label = 1 if class_str == 'A' else 0
 
             samples.append({
@@ -71,7 +75,8 @@ class HitAndRunDataset(Dataset):
                     if not parts or len(parts) < 2:
                         continue
                     if parts[0] == 'car' and len(parts) >= 6:
-                        bboxes[int(parts[1])] = [int(parts[2]), int(parts[3]), int(parts[4]), int(parts[5])]
+                        bboxes[int(parts[1])] = [int(parts[2]), int(
+                            parts[3]), int(parts[4]), int(parts[5])]
                     elif parts[0] in ['A', 'S']:
                         action = parts
         return bboxes, action
@@ -87,9 +92,9 @@ class HitAndRunDataset(Dataset):
         new_x_min, new_y_min = cx - square_size // 2, cy - square_size // 2
         new_x_max, new_y_max = cx + square_size // 2, cy + square_size // 2
 
-        pad_left   = max(0, -new_x_min)
-        pad_top    = max(0, -new_y_min)
-        pad_right  = max(0, new_x_max - w)
+        pad_left = max(0, -new_x_min)
+        pad_top = max(0, -new_y_min)
+        pad_right = max(0, new_x_max - w)
         pad_bottom = max(0, new_y_max - h)
 
         valid_x_min = max(0, new_x_min)
@@ -109,41 +114,29 @@ class HitAndRunDataset(Dataset):
         return cv2.resize(cropped_frame, self.resize, interpolation=cv2.INTER_LINEAR)
 
     def _apply_augmentation(self, frames):
-        # 논문 Section 4.3 기반 데이터 증강 (모든 프레임에 동일한 변환 적용)
+        # 실제 주차장 CCTV 환경 대응 데이터 증강
+        # 조명 환경·날씨·카메라 색감 차이로 인한 도메인 갭을 줄이기 위해
+        # 색상 계열 증강을 중심으로 구성. 모든 프레임에 동일한 변환 적용 (시간적 일관성 유지)
+
         do_hflip = random.random() > 0.5
 
-        do_rot = random.random() > 0.5
-        angle = random.uniform(-10, 10) if do_rot else 0
-
+        # 밝기·대비·채도·색조: 조명 변화, 날씨, 카메라 색감 차이 시뮬레이션
         do_jitter = random.random() > 0.5
-        brightness = random.uniform(0.9, 1.1)
-        contrast = random.uniform(0.9, 1.1)
-
-        # Random Crop: occluded/restricted view 시뮬레이션 (논문 Section 4.3)
-        # 비디오 전체에 동일한 crop 파라미터 적용
-        do_crop = random.random() > 0.5
-        h, w = self.resize[1], self.resize[0]
-        new_h, new_w, top, left = h, w, 0, 0  # 기본값: crop 없음 (전체 영역)
-        if do_crop:
-            crop_ratio = random.uniform(0.8, 1.0)
-            new_h = int(h * crop_ratio)
-            new_w = int(w * crop_ratio)
-            top = random.randint(0, h - new_h)
-            left = random.randint(0, w - new_w)
+        brightness = random.uniform(0.6, 1.4)   # 어두운 지하주차장 ~ 밝은 외부
+        contrast = random.uniform(0.7, 1.3)   # 저대비(흐린 날) ~ 고대비(직사광)
+        saturation = random.uniform(0.7, 1.3)   # 카메라별 채도 특성 차이
+        hue = random.uniform(-0.1, 0.1)  # 카메라 화이트밸런스·조명 색온도 차이
 
         aug_frames = []
         for frame in frames:
             img = Image.fromarray(frame)
             if do_hflip:
                 img = TF.hflip(img)
-            if do_rot:
-                img = TF.rotate(img, angle)
             if do_jitter:
                 img = TF.adjust_brightness(img, brightness)
                 img = TF.adjust_contrast(img, contrast)
-            if do_crop:
-                img = TF.crop(img, top, left, new_h, new_w)
-                img = TF.resize(img, [h, w])
+                img = TF.adjust_saturation(img, saturation)
+                img = TF.adjust_hue(img, hue)
             aug_frames.append(np.array(img))
 
         return aug_frames
@@ -164,11 +157,13 @@ class HitAndRunDataset(Dataset):
             if not ret:
                 break
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frames.append(self._crop_and_pad(frame, sample['bbox'], self.r_value))
+            frames.append(self._crop_and_pad(
+                frame, sample['bbox'], self.r_value))
         cap.release()
 
         while len(frames) < self.clip_length:
-            frames.append(frames[-1] if frames else np.zeros((self.resize[1], self.resize[0], 3), dtype=np.uint8))
+            frames.append(
+                frames[-1] if frames else np.zeros((self.resize[1], self.resize[0], 3), dtype=np.uint8))
 
         frames = self._apply_augmentation(frames)
 

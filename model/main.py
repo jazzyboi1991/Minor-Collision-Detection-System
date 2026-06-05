@@ -35,7 +35,15 @@ def run_train():
 def run_predict():
     from predict_cam import predict_hit_and_run_final
     model, _ = _load_model(config.PREDICT_WEIGHTS_PATH)
-    predict_hit_and_run_final(model)
+    out_path, events = predict_hit_and_run_final(model)
+    if out_path is None:
+        print("추론 실패: 결과 영상이 생성되지 않았습니다.")
+        return
+    if events:
+        print(f"\n[이벤트 요약] 충돌 {len(events)}건 감지")
+        for i, ev in enumerate(events, 1):
+            print(f"  이벤트 {i}: start_frame={ev['start_frame']}, "
+                  f"end_frame={ev['end_frame']}")
 
 
 def run_eval():

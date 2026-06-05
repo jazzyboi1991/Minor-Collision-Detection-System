@@ -10,9 +10,23 @@ def get_device():
     별도 분기 없이 동일하게 동작합니다.
     """
     if config.DEVICE_TYPE == "cuda":
-        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    else:
+        if torch.cuda.is_available():
+            return torch.device("cuda")
+        print(
+            "\n[경고] DEVICE_TYPE = 'cuda' 이지만 GPU를 찾을 수 없어 CPU로 실행합니다.\n"
+            "원인 및 해결 방법:\n"
+            "  1. ROCm PyTorch 미설치\n"
+            "     → pip install torch torchvision "
+            "--index-url https://download.pytorch.org/whl/rocm6.2\n"
+            "  2. CUDA PyTorch 미설치\n"
+            "     → pip install torch torchvision "
+            "--index-url https://download.pytorch.org/whl/cu121\n"
+            "  3. WSL2에서 GPU 패스스루 미설정\n"
+            "     → /proc/driver/nvidia 또는 /dev/dri 디바이스 존재 여부 확인\n"
+            "  설치 상태 확인: python -c \"import torch; print(torch.__version__, torch.cuda.is_available())\"\n"
+        )
         return torch.device("cpu")
+    return torch.device("cpu")
 
 
 def is_rocm() -> bool:
