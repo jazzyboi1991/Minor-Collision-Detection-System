@@ -17,11 +17,13 @@ class HitAndRunDataset(Dataset):
         clip_length=config.CLIP_LENGTH,
         r_value=config.R_VALUE,
         resize=config.RESIZE,
+        augment=True,
     ):
         self.data_dir = data_dir
         self.clip_length = clip_length
         self.r_value = r_value
         self.resize = resize
+        self.augment = augment  # 학습 시 True, 검증/추론 시 False
         self.mean = torch.tensor(
             [0.485, 0.456, 0.406], dtype=torch.float32).view(3, 1, 1, 1)
         self.std = torch.tensor([0.229, 0.224, 0.225],
@@ -165,6 +167,7 @@ class HitAndRunDataset(Dataset):
             frames.append(
                 frames[-1] if frames else np.zeros((self.resize[1], self.resize[0], 3), dtype=np.uint8))
 
-        frames = self._apply_augmentation(frames)
+        if self.augment:
+            frames = self._apply_augmentation(frames)
 
         return self._frames_to_tensor(frames), torch.tensor(sample['label'], dtype=torch.long)

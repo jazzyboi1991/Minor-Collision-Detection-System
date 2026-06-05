@@ -2,7 +2,8 @@ import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, random_split
+import numpy as np
+from torch.utils.data import DataLoader, Subset
 
 import config
 from dataset import HitAndRunDataset
@@ -74,6 +75,8 @@ def train_model(
     train_split_ratio=config.TRAIN_SPLIT_RATIO,
     early_stopping_patience=config.TRAIN_EARLY_STOPPING_PATIENCE,
     learning_rate=config.TRAIN_LEARNING_RATE,
+    lr_scheduler_factor=config.TRAIN_LR_SCHEDULER_FACTOR,
+    lr_scheduler_patience=config.TRAIN_LR_SCHEDULER_PATIENCE,
     use_amp=config.USE_AMP,
     use_channels_last=config.USE_CHANNELS_LAST,
 ):
@@ -84,13 +87,23 @@ def train_model(
     if cuda_like:
         torch.backends.cudnn.benchmark = True
 
-    full_dataset = HitAndRunDataset(
-        data_dir=data_dir, clip_length=clip_length, r_value=r_value, resize=resize
-    )
-    train_size = int(train_split_ratio * len(full_dataset))
-    val_size = len(full_dataset) - train_size
-    train_subset, val_subset = random_split(
-        full_dataset, [train_size, val_size])
+    # 학습용(증강 O)·검증용(증강 X) 데이터셋을 분리.
+    # 동일한 영상 목록을 공유하되, 고정 seed로 같은 인덱스를 동일하게 분할한다.
+    train_dataset = HitAndRunDataset(
+        data_dir=data_dir, clip_length=clip_length, r_value=r_value,
+        resize=resize, augment=True)
+    val_dataset = HitAndRunDataset(
+        data_dir=data_dir, clip_length=clip_length, r_value=r_value,
+        resize=resize, augment=False)
+
+    n = len(train_dataset)
+    train_size = int(train_split_ratio * n)
+    generator = torch.Generator().manual_seed(42)  # 재현성 + train/val 일관 분할
+    perm = torch.randperm(n, generator=generator).tolist()
+    train_idx, val_idx = perm[:train_size], perm[train_size:]
+
+    train_subset = Subset(train_dataset, train_idx)
+    val_subset = Subset(val_dataset, val_idx)
 
     train_loader = _make_loader(
         train_subset, batch_size=batch_size, shuffle=True, device=device)
@@ -108,8 +121,20 @@ def train_model(
     if channels_last_enabled:
         model = model.to(memory_format=torch.channels_last_3d)
 
-    criterion = nn.CrossEntropyLoss()
+    # 클래스 불균형 대응: 학습셋의 클래스 빈도 역수로 가중치 부여
+    train_labels = [train_dataset.samples[i]['label'] for i in train_idx]
+    counts = np.bincount(train_labels, minlength=num_classes)
+    class_weights = torch.tensor(
+        counts.sum() / (num_classes * np.maximum(counts, 1)),
+        dtype=torch.float32,
+    ).to(device)
+    print(f"클래스 분포(학습): {counts.tolist()} | 가중치: {class_weights.tolist()}")
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    # val_loss가 정체되면 학습률을 factor배로 자동 감소
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode='min',
+        factor=lr_scheduler_factor, patience=lr_scheduler_patience)
 
     if amp_enabled:
         scaler = torch.amp.GradScaler("cuda")
@@ -168,8 +193,9 @@ def train_model(
         avg_val_loss = val_loss / len(val_loader.dataset)
         val_acc = correct.double() / len(val_loader.dataset)
 
-        print(f'Epoch [{epoch+1}/{num_epochs}] Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f} | Val Acc: {val_acc:.4f}')
+        print(f'Epoch [{epoch+1}/{num_epochs}] Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f} | Val Acc: {val_acc:.4f} | LR: {optimizer.param_groups[0]["lr"]:.2e}')
 
+        scheduler.step(avg_val_loss)  # val_loss 정체 시 학습률 자동 감소
         early_stopping(avg_val_loss, model)
         if early_stopping.early_stop:
             print("조기 종료 조건 충족. 학습을 중단합니다.")

@@ -2,29 +2,34 @@ import torch
 import torch.nn as nn
 
 
+def conv_block(in_channels, out_channels, **kwargs):
+    """Conv3d → BatchNorm3d → ReLU 묶음.
+
+    I3D 표준 구성. BatchNorm은 깊은 3D-CNN의 internal covariate shift를
+    억제해 학습을 안정화한다. BN이 bias 역할을 하므로 Conv3d는 bias=False.
+    """
+    return nn.Sequential(
+        nn.Conv3d(in_channels, out_channels, bias=False, **kwargs),
+        nn.BatchNorm3d(out_channels),
+        nn.ReLU(inplace=True),
+    )
+
+
 class InceptionModule3D(nn.Module):
     def __init__(self, in_channels, n1x1, n3x3_reduce, n3x3, n5x5_reduce, n5x5, pool_proj):
         super(InceptionModule3D, self).__init__()
-        self.branch1 = nn.Sequential(
-            nn.Conv3d(in_channels, n1x1, kernel_size=1),
-            nn.ReLU(inplace=True)
-        )
+        self.branch1 = conv_block(in_channels, n1x1, kernel_size=1)
         self.branch2 = nn.Sequential(
-            nn.Conv3d(in_channels, n3x3_reduce, kernel_size=1),
-            nn.ReLU(inplace=True),
-            nn.Conv3d(n3x3_reduce, n3x3, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True)
+            conv_block(in_channels, n3x3_reduce, kernel_size=1),
+            conv_block(n3x3_reduce, n3x3, kernel_size=3, padding=1),
         )
         self.branch3 = nn.Sequential(
-            nn.Conv3d(in_channels, n5x5_reduce, kernel_size=1),
-            nn.ReLU(inplace=True),
-            nn.Conv3d(n5x5_reduce, n5x5, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True)
+            conv_block(in_channels, n5x5_reduce, kernel_size=1),
+            conv_block(n5x5_reduce, n5x5, kernel_size=3, padding=1),
         )
         self.branch4 = nn.Sequential(
             nn.MaxPool3d(kernel_size=3, stride=1, padding=1),
-            nn.Conv3d(in_channels, pool_proj, kernel_size=1),
-            nn.ReLU(inplace=True)
+            conv_block(in_channels, pool_proj, kernel_size=1),
         )
 
     def forward(self, x):
@@ -39,19 +44,14 @@ class HitAndRun3DCNN(nn.Module):
     def __init__(self, num_classes=2):
         super(HitAndRun3DCNN, self).__init__()
 
-        self.conv1 = nn.Sequential(
-            nn.Conv3d(3, 64, kernel_size=(7, 7, 7),
-                      stride=(2, 2, 2), padding=(3, 3, 3)),
-            nn.ReLU(inplace=True)
-        )
+        self.conv1 = conv_block(
+            3, 64, kernel_size=(7, 7, 7), stride=(2, 2, 2), padding=(3, 3, 3))
         self.maxpool1 = nn.MaxPool3d(kernel_size=(
             1, 3, 3), stride=(1, 2, 2), padding=(0, 1, 1))
 
         self.conv2 = nn.Sequential(
-            nn.Conv3d(64, 64, kernel_size=1),
-            nn.ReLU(inplace=True),
-            nn.Conv3d(64, 192, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True)
+            conv_block(64, 64, kernel_size=1),
+            conv_block(64, 192, kernel_size=3, padding=1),
         )
         self.maxpool2 = nn.MaxPool3d(kernel_size=(
             1, 3, 3), stride=(1, 2, 2), padding=(0, 1, 1))
@@ -73,6 +73,7 @@ class HitAndRun3DCNN(nn.Module):
 
         self.avg_pool = nn.AdaptiveAvgPool3d((1, 1, 1))
         self.dropout = nn.Dropout(p=0.4)
+        # 분류 헤드는 logit을 출력하므로 BN/ReLU 없이 Conv3d 단독 (CAM 가중치로도 사용)
         self.head_conv = nn.Conv3d(1024, num_classes, kernel_size=1)
 
     def forward(self, x):

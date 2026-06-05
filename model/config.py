@@ -30,7 +30,10 @@ TRAIN_BATCH_SIZE = 15  # GPU VRAM 상황에 맞게 조절 (예: 16, 32, 64 등)(
 TRAIN_NUM_EPOCHS = 100
 TRAIN_SPLIT_RATIO = 0.8
 TRAIN_EARLY_STOPPING_PATIENCE = 10
-TRAIN_LEARNING_RATE = 0.00001
+TRAIN_LEARNING_RATE = 0.0001  # BatchNorm 적용 후 권장 (1e-4)
+# ReduceLROnPlateau: val_loss가 patience 에포크 동안 개선 없으면 lr * factor
+TRAIN_LR_SCHEDULER_FACTOR = 0.5
+TRAIN_LR_SCHEDULER_PATIENCE = 5
 
 # ---------- 단일 영상 예측/CAM 출력 전용 ----------
 PREDICT_WEIGHTS_PATH = _ROOT / "weights" / "hitandrun_model_best.pth"
