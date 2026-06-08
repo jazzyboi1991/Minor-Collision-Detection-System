@@ -67,8 +67,8 @@ def _draw_state_label(frame, state):
     label = "A" if state == 1 else "S"
     color = (0, 0, 255) if state == 1 else (0, 255, 0)
     # 배경 사각형으로 가독성 확보
-    cv2.rectangle(frame, (10, 10), (90, 65), (0, 0, 0), -1)
-    cv2.putText(frame, label, (20, 57),
+    cv2.rectangle(frame, (10, 10), (180, 90), (0, 0, 0), -1)
+    cv2.putText(frame, label, (20, 70),
                 cv2.FONT_HERSHEY_SIMPLEX, 1.8, color, 3)
 
 
