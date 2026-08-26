@@ -1,0 +1,1569 @@
+{
+    "schema_version": 1,
+    "videos": [
+        {
+            "video_id": "001 - Car in parking Garage - Parking garage security camera system [-1aCzFt1_mw]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/001 - Car in parking Garage - Parking garage security camera system [-1aCzFt1_mw].mp4",
+            "split": "normal",
+            "width": 1920,
+            "height": 1080,
+            "frame_count": 212,
+            "fps": 15.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        0,
+                        191,
+                        377,
+                        448
+                    ],
+                    "reference_frame": 0
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        86,
+                        122,
+                        490,
+                        289
+                    ],
+                    "reference_frame": 0
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "002 - ClearPix Camera Parking Lot [DrMOC56cRhc]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/002 - ClearPix Camera Parking Lot [DrMOC56cRhc].mp4",
+            "split": "normal",
+            "width": 640,
+            "height": 360,
+            "frame_count": 121,
+            "fps": 10.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        343,
+                        23,
+                        404,
+                        55
+                    ],
+                    "reference_frame": 28
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        272,
+                        13,
+                        338,
+                        43
+                    ],
+                    "reference_frame": 28
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "003 - ClearPix Camera Mall Parking at Night [vGwW6drgabY]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/003 - ClearPix Camera Mall Parking at Night [vGwW6drgabY].mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 265,
+            "fps": 10.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        919,
+                        141,
+                        956,
+                        170
+                    ],
+                    "reference_frame": 196
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        716,
+                        136,
+                        803,
+                        182
+                    ],
+                    "reference_frame": 196
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "004 - ClearPix Camera Grocery Parking Lot [KhtwB8faMpU]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/004 - ClearPix Camera Grocery Parking Lot [KhtwB8faMpU].mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 170,
+            "fps": 10.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        0,
+                        232,
+                        323,
+                        395
+                    ],
+                    "reference_frame": 160
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        705,
+                        150,
+                        911,
+                        226
+                    ],
+                    "reference_frame": 160
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "005 - ClearPix Camera Grocery Parking [zEuekKCmZP0]_1",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/005 - ClearPix Camera Grocery Parking [zEuekKCmZP0]_1.mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 80,
+            "fps": 10.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        478,
+                        278,
+                        747,
+                        375
+                    ],
+                    "reference_frame": 6
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        637,
+                        216,
+                        947,
+                        318
+                    ],
+                    "reference_frame": 6
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "005 - ClearPix Camera Grocery Parking [zEuekKCmZP0]_2",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/005 - ClearPix Camera Grocery Parking [zEuekKCmZP0]_2.mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 151,
+            "fps": 10.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        590,
+                        322,
+                        882,
+                        444
+                    ],
+                    "reference_frame": 99
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        477,
+                        277,
+                        739,
+                        373
+                    ],
+                    "reference_frame": 99
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "006 - NE Parking - Video Export Sample [PdSv3RsKkTc]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/006 - NE Parking - Video Export Sample [PdSv3RsKkTc].mp4",
+            "split": "normal",
+            "width": 1920,
+            "height": 1080,
+            "frame_count": 335,
+            "fps": 30.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        1622,
+                        252,
+                        1771,
+                        424
+                    ],
+                    "reference_frame": 58
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        1221,
+                        210,
+                        1406,
+                        349
+                    ],
+                    "reference_frame": 58
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "007 - ClearPix Camera School Parking [XVYQFhVvFAU]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/007 - ClearPix Camera School Parking [XVYQFhVvFAU].mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 151,
+            "fps": 10.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        733,
+                        250,
+                        857,
+                        317
+                    ],
+                    "reference_frame": 150
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        647,
+                        302,
+                        805,
+                        380
+                    ],
+                    "reference_frame": 150
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "008 - Stock Footage_ Security Camera Surveillance Footage of Cars in a Rooftop Parking Lot [sVhbMvx7qcs]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/008 - Stock Footage_ Security Camera Surveillance Footage of Cars in a Rooftop Parking Lot [sVhbMvx7qcs].mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 636,
+            "fps": 30.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        565,
+                        483,
+                        749,
+                        580
+                    ],
+                    "reference_frame": 388
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        336,
+                        500,
+                        532,
+                        602
+                    ],
+                    "reference_frame": 388
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "009 - AXIS Q1798 LE PARKING LOT DEMO [PslJCL-uGe0]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/009 - AXIS Q1798 LE PARKING LOT DEMO [PslJCL-uGe0].mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 455,
+            "fps": 29.97002997002997,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        880,
+                        109,
+                        1272,
+                        255
+                    ],
+                    "reference_frame": 0
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        0,
+                        158,
+                        253,
+                        275
+                    ],
+                    "reference_frame": 454
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "009 - AXIS Q1798 LE PARKING LOT DEMO [PslJCL-uGe0]_1",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/009 - AXIS Q1798 LE PARKING LOT DEMO [PslJCL-uGe0]_1.mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 571,
+            "fps": 29.97002997002997,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        880,
+                        109,
+                        1272,
+                        255
+                    ],
+                    "reference_frame": 0
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        0,
+                        158,
+                        253,
+                        275
+                    ],
+                    "reference_frame": 570
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "010 - IP camera footage of Carpark [_gAzZuyEB_8]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/010 - IP camera footage of Carpark [_gAzZuyEB_8].mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 541,
+            "fps": 30.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        199,
+                        292,
+                        594,
+                        441
+                    ],
+                    "reference_frame": 0
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        1020,
+                        330,
+                        1278,
+                        436
+                    ],
+                    "reference_frame": 0
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "011 - Axis P3367 VE Camera in Action Nighttime Parking Lot [Yb8ixFE8_6I]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/011 - Axis P3367 VE Camera in Action Nighttime Parking Lot [Yb8ixFE8_6I].mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 350,
+            "fps": 29.97002997002997,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        663,
+                        121,
+                        775,
+                        173
+                    ],
+                    "reference_frame": 0
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        977,
+                        200,
+                        1089,
+                        264
+                    ],
+                    "reference_frame": 180
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "013 - Parking Garage Rooftop Security ⧸ Surveillance Camera Footage [u4SzzYX5HoI]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/013 - Parking Garage Rooftop Security ⧸ Surveillance Camera Footage [u4SzzYX5HoI].mp4",
+            "split": "normal",
+            "width": 1920,
+            "height": 1080,
+            "frame_count": 271,
+            "fps": 30.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        847,
+                        23,
+                        1072,
+                        107
+                    ],
+                    "reference_frame": 270
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        937,
+                        189,
+                        1213,
+                        287
+                    ],
+                    "reference_frame": 270
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "014 - ClearPix Camera Car Dealer Lot [i-sgVJUmqbg]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/014 - ClearPix Camera Car Dealer Lot [i-sgVJUmqbg].mp4",
+            "split": "normal",
+            "width": 1920,
+            "height": 1080,
+            "frame_count": 118,
+            "fps": 10.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        970,
+                        159,
+                        1141,
+                        313
+                    ],
+                    "reference_frame": 93
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        66,
+                        282,
+                        316,
+                        394
+                    ],
+                    "reference_frame": 93
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "015 - Parking 2 Fisheye Footage for Panoramic Camera [y7PkmX2k9aA]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/015 - Parking 2 Fisheye Footage for Panoramic Camera [y7PkmX2k9aA].mp4",
+            "split": "normal",
+            "width": 1920,
+            "height": 1080,
+            "frame_count": 751,
+            "fps": 30.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        796,
+                        583,
+                        965,
+                        740
+                    ],
+                    "reference_frame": 0
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        1261,
+                        573,
+                        1484,
+                        676
+                    ],
+                    "reference_frame": 274
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "016 - VIVOTEK IP8151 in a Parking Lot [tM06vcUw7ak]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/016 - VIVOTEK IP8151 in a Parking Lot [tM06vcUw7ak].mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 419,
+            "fps": 29.97002997002997,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        0,
+                        492,
+                        86,
+                        623
+                    ],
+                    "reference_frame": 243
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        453,
+                        543,
+                        535,
+                        610
+                    ],
+                    "reference_frame": 243
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "018 - HD CCTV for parking area [VAQyR_wQoA0]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/018 - HD CCTV for parking area [VAQyR_wQoA0].mp4",
+            "split": "normal",
+            "width": 960,
+            "height": 720,
+            "frame_count": 201,
+            "fps": 12.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        53,
+                        112,
+                        315,
+                        231
+                    ],
+                    "reference_frame": 97
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        630,
+                        48,
+                        743,
+                        88
+                    ],
+                    "reference_frame": 97
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "020 - StarDot NetCam SC 5mp Parking Lot - MidwestSurveillance-com [JGgzvsmWaVA]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/020 - StarDot NetCam SC 5mp Parking Lot - MidwestSurveillance-com [JGgzvsmWaVA].mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 193,
+            "fps": 25.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        409,
+                        492,
+                        909,
+                        701
+                    ],
+                    "reference_frame": 42
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        428,
+                        375,
+                        924,
+                        559
+                    ],
+                    "reference_frame": 42
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "021 - 4K Carpark [OIuzb48sH70]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/021 - 4K Carpark [OIuzb48sH70].mp4",
+            "split": "normal",
+            "width": 1920,
+            "height": 1080,
+            "frame_count": 377,
+            "fps": 25.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        1052,
+                        803,
+                        1316,
+                        913
+                    ],
+                    "reference_frame": 3
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        730,
+                        808,
+                        1001,
+                        919
+                    ],
+                    "reference_frame": 3
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "025 - Analogue CCTV recording of a typical car park scene - Part 1 SD [1Fk2HjfK5u0]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/025 - Analogue CCTV recording of a typical car park scene - Part 1 SD [1Fk2HjfK5u0].mp4",
+            "split": "normal",
+            "width": 1440,
+            "height": 1080,
+            "frame_count": 575,
+            "fps": 29.97002997002997,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        61,
+                        293,
+                        503,
+                        662
+                    ],
+                    "reference_frame": 0
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        878,
+                        436,
+                        1198,
+                        682
+                    ],
+                    "reference_frame": 0
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "027 - High Definition CCTV recording of a typical car park scene - Part 2 HD [3Rug8tECwZc]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/027 - High Definition CCTV recording of a typical car park scene - Part 2 HD [3Rug8tECwZc].mp4",
+            "split": "normal",
+            "width": 1440,
+            "height": 1080,
+            "frame_count": 832,
+            "fps": 29.97002997002997,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        840,
+                        273,
+                        1097,
+                        483
+                    ],
+                    "reference_frame": 318
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        175,
+                        235,
+                        518,
+                        544
+                    ],
+                    "reference_frame": 318
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "029 - Parking Lot Security Footage 556935 [Ka2C3QN7RX8]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/029 - Parking Lot Security Footage 556935 [Ka2C3QN7RX8].mp4",
+            "split": "normal",
+            "width": 640,
+            "height": 360,
+            "frame_count": 569,
+            "fps": 29.97002997002997,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        433,
+                        223,
+                        640,
+                        311
+                    ],
+                    "reference_frame": 248
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        336,
+                        207,
+                        512,
+                        271
+                    ],
+                    "reference_frame": 248
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "031 - Parking Lot daytime [2Vi_0vLuXLc]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/031 - Parking Lot daytime [2Vi_0vLuXLc].mp4",
+            "split": "normal",
+            "width": 1910,
+            "height": 1080,
+            "frame_count": 120,
+            "fps": 15.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        696,
+                        87,
+                        826,
+                        149
+                    ],
+                    "reference_frame": 108
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        499,
+                        137,
+                        690,
+                        221
+                    ],
+                    "reference_frame": 108
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "032 - FS-IP4180 - Parking Lot at Night [3-jdPMZzlIk]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/032 - FS-IP4180 - Parking Lot at Night [3-jdPMZzlIk].mp4",
+            "split": "normal",
+            "width": 1920,
+            "height": 1080,
+            "frame_count": 242,
+            "fps": 15.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        1509,
+                        686,
+                        1784,
+                        907
+                    ],
+                    "reference_frame": 182
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        1242,
+                        698,
+                        1573,
+                        1042
+                    ],
+                    "reference_frame": 182
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "033 - Out Door Commercial Building - Security Camera [5yW4Lvr8IJE]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/033 - Out Door Commercial Building - Security Camera [5yW4Lvr8IJE].mp4",
+            "split": "normal",
+            "width": 1910,
+            "height": 1080,
+            "frame_count": 271,
+            "fps": 25.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        1329,
+                        115,
+                        1603,
+                        241
+                    ],
+                    "reference_frame": 270
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        1337,
+                        459,
+                        1686,
+                        951
+                    ],
+                    "reference_frame": 0
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "034 - Inside Parking Garage [6g_0iUUIwWw]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/034 - Inside Parking Garage [6g_0iUUIwWw].mp4",
+            "split": "normal",
+            "width": 1910,
+            "height": 1080,
+            "frame_count": 83,
+            "fps": 25.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        1099,
+                        129,
+                        1452,
+                        329
+                    ],
+                    "reference_frame": 0
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        672,
+                        78,
+                        1021,
+                        234
+                    ],
+                    "reference_frame": 62
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "035 - MicroPower Technologies - Commercial Parking Lot (Daytime) [VwKUaBNDzPk]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/035 - MicroPower Technologies - Commercial Parking Lot (Daytime) [VwKUaBNDzPk].mp4",
+            "split": "normal",
+            "width": 852,
+            "height": 480,
+            "frame_count": 271,
+            "fps": 29.97002997002997,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        409,
+                        220,
+                        519,
+                        306
+                    ],
+                    "reference_frame": 270
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        575,
+                        197,
+                        668,
+                        242
+                    ],
+                    "reference_frame": 270
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "036 - FullSight 8MP - Parking Lot [WMHLP_EDjRo]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/036 - FullSight 8MP - Parking Lot [WMHLP_EDjRo].mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 546,
+            "frame_count": 350,
+            "fps": 30.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        127,
+                        254,
+                        352,
+                        445
+                    ],
+                    "reference_frame": 176
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        325,
+                        274,
+                        506,
+                        498
+                    ],
+                    "reference_frame": 176
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "037 - 31-01-2018 Car Park Muswellbrook CCTV Footage (7pm-7-11pm) [ipS3lgLS8q0]_1",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/037 - 31-01-2018 Car Park Muswellbrook CCTV Footage (7pm-7-11pm) [ipS3lgLS8q0]_1.mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 365,
+            "fps": 23.976023976023978,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        210,
+                        98,
+                        398,
+                        194
+                    ],
+                    "reference_frame": 364
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        533,
+                        53,
+                        650,
+                        115
+                    ],
+                    "reference_frame": 364
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "037 - 31-01-2018 Car Park Muswellbrook CCTV Footage (7pm-7-11pm) [ipS3lgLS8q0]_2",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/037 - 31-01-2018 Car Park Muswellbrook CCTV Footage (7pm-7-11pm) [ipS3lgLS8q0]_2.mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 118,
+            "fps": 23.976023976023978,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        792,
+                        71,
+                        850,
+                        109
+                    ],
+                    "reference_frame": 50
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        534,
+                        59,
+                        646,
+                        115
+                    ],
+                    "reference_frame": 50
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "039 - FS IP8180 Parking Lot at Night [mQ-lnJnd4vs]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/039 - FS IP8180 Parking Lot at Night [mQ-lnJnd4vs].mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 546,
+            "frame_count": 577,
+            "fps": 30.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        937,
+                        276,
+                        1120,
+                        436
+                    ],
+                    "reference_frame": 427
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        769,
+                        285,
+                        971,
+                        514
+                    ],
+                    "reference_frame": 427
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "041 - Parking Lot Camera [w9BND-VnX-A]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/041 - Parking Lot Camera [w9BND-VnX-A].mp4",
+            "split": "normal",
+            "width": 854,
+            "height": 480,
+            "frame_count": 130,
+            "fps": 14.985014985014985,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        92,
+                        202,
+                        231,
+                        238
+                    ],
+                    "reference_frame": 43
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        532,
+                        206,
+                        716,
+                        250
+                    ],
+                    "reference_frame": 43
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "044 - Nighttime & Early Morning Parking Lot Surveillance [TBlEKO3OgpE]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/044 - Nighttime & Early Morning Parking Lot Surveillance [TBlEKO3OgpE].mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 331,
+            "fps": 25.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        766,
+                        72,
+                        1064,
+                        236
+                    ],
+                    "reference_frame": 81
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        314,
+                        51,
+                        351,
+                        76
+                    ],
+                    "reference_frame": 81
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "045 - CCTV Monitoring - Car Park [VZkihjXZslU]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/045 - CCTV Monitoring - Car Park [VZkihjXZslU].mp4",
+            "split": "normal",
+            "width": 1152,
+            "height": 720,
+            "frame_count": 606,
+            "fps": 25.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        412,
+                        280,
+                        672,
+                        436
+                    ],
+                    "reference_frame": 284
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        283,
+                        331,
+                        481,
+                        474
+                    ],
+                    "reference_frame": 284
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "046 - AHD CAR PARK DAY [bjTs7lK1Bfk]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/046 - AHD CAR PARK DAY [bjTs7lK1Bfk].mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 413,
+            "fps": 29.97002997002997,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        607,
+                        34,
+                        764,
+                        112
+                    ],
+                    "reference_frame": 358
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        352,
+                        71,
+                        470,
+                        149
+                    ],
+                    "reference_frame": 358
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "048 - InSight 5 Megapixel fixed Surveillance camera 2560x1920 [6fyaPuYepnw]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/048 - InSight 5 Megapixel fixed Surveillance camera 2560x1920 [6fyaPuYepnw].mp4",
+            "split": "normal",
+            "width": 1438,
+            "height": 1080,
+            "frame_count": 107,
+            "fps": 10.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        195,
+                        546,
+                        519,
+                        690
+                    ],
+                    "reference_frame": 104
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        844,
+                        631,
+                        1126,
+                        841
+                    ],
+                    "reference_frame": 104
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "049 - mobotix parking lot [Z9_B6hRzH1M]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/049 - mobotix parking lot [Z9_B6hRzH1M].mp4",
+            "split": "normal",
+            "width": 960,
+            "height": 720,
+            "frame_count": 400,
+            "fps": 25.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        592,
+                        505,
+                        958,
+                        719
+                    ],
+                    "reference_frame": 93
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        183,
+                        176,
+                        347,
+                        231
+                    ],
+                    "reference_frame": 93
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "050 - BLK-HDPTZ12 Security Camera Parkng Lot Surveillance Video [U7HRKjlXK-Y]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/050 - BLK-HDPTZ12 Security Camera Parkng Lot Surveillance Video [U7HRKjlXK-Y].mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 281,
+            "fps": 30.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        991,
+                        429,
+                        1113,
+                        494
+                    ],
+                    "reference_frame": 31
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        743,
+                        437,
+                        853,
+                        511
+                    ],
+                    "reference_frame": 31
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "050 - BLK-HDPTZ12 Security Camera Parkng Lot Surveillance Video [U7HRKjlXK-Y]_1",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/050 - BLK-HDPTZ12 Security Camera Parkng Lot Surveillance Video [U7HRKjlXK-Y]_1.mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 259,
+            "fps": 30.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        377,
+                        370,
+                        439,
+                        415
+                    ],
+                    "reference_frame": 181
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        504,
+                        351,
+                        578,
+                        406
+                    ],
+                    "reference_frame": 181
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "050 - BLK-HDPTZ12 Security Camera Parkng Lot Surveillance Video [U7HRKjlXK-Y]_2",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/050 - BLK-HDPTZ12 Security Camera Parkng Lot Surveillance Video [U7HRKjlXK-Y]_2.mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 857,
+            "fps": 30.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        571,
+                        608,
+                        750,
+                        720
+                    ],
+                    "reference_frame": 292
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        417,
+                        428,
+                        494,
+                        490
+                    ],
+                    "reference_frame": 635
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "050 - BLK-HDPTZ12 Security Camera Parkng Lot Surveillance Video [U7HRKjlXK-Y]_3",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/050 - BLK-HDPTZ12 Security Camera Parkng Lot Surveillance Video [U7HRKjlXK-Y]_3.mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 159,
+            "fps": 30.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        646,
+                        334,
+                        731,
+                        420
+                    ],
+                    "reference_frame": 79
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        588,
+                        459,
+                        728,
+                        633
+                    ],
+                    "reference_frame": 79
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "050 - BLK-HDPTZ12 Security Camera Parkng Lot Surveillance Video [U7HRKjlXK-Y]_4",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/050 - BLK-HDPTZ12 Security Camera Parkng Lot Surveillance Video [U7HRKjlXK-Y]_4.mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 797,
+            "fps": 30.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        96,
+                        462,
+                        269,
+                        616
+                    ],
+                    "reference_frame": 493
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        129,
+                        328,
+                        237,
+                        402
+                    ],
+                    "reference_frame": 493
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "052 - ACTi E44 1080P IR Bullet - Night Video [E96F9RQal5w]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/052 - ACTi E44 1080P IR Bullet - Night Video [E96F9RQal5w].mp4",
+            "split": "normal",
+            "width": 1920,
+            "height": 1080,
+            "frame_count": 596,
+            "fps": 30.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        203,
+                        368,
+                        1087,
+                        964
+                    ],
+                    "reference_frame": 595
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        1642,
+                        147,
+                        1756,
+                        281
+                    ],
+                    "reference_frame": 595
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "052 - ACTi E44 1080P IR Bullet - Night Video [E96F9RQal5w]_1",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/052 - ACTi E44 1080P IR Bullet - Night Video [E96F9RQal5w]_1.mp4",
+            "split": "normal",
+            "width": 1920,
+            "height": 1080,
+            "frame_count": 367,
+            "fps": 30.0,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        203,
+                        368,
+                        1087,
+                        964
+                    ],
+                    "reference_frame": 366
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        1642,
+                        147,
+                        1756,
+                        281
+                    ],
+                    "reference_frame": 366
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        },
+        {
+            "video_id": "053 - Rainy Parking Lot - 720P (Optica B102) [NGUqmSrymUc]",
+            "source_video": "/Users/manuelpark/Documents/대학교 프로그래밍/캡스톤디자인/Real Data/Non-Accident/Edit (Ver. 2).aep_AME/053 - Rainy Parking Lot - 720P (Optica B102) [NGUqmSrymUc].mp4",
+            "split": "normal",
+            "width": 1280,
+            "height": 720,
+            "frame_count": 214,
+            "fps": 29.97002997002997,
+            "boxes": [
+                {
+                    "vehicle_id": 0,
+                    "bbox": [
+                        531,
+                        124,
+                        640,
+                        221
+                    ],
+                    "reference_frame": 25
+                },
+                {
+                    "vehicle_id": 1,
+                    "bbox": [
+                        53,
+                        161,
+                        190,
+                        228
+                    ],
+                    "reference_frame": 25
+                }
+            ],
+            "events": [],
+            "status": "normal",
+            "schema_version": 1
+        }
+    ]
+}
