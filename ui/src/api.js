@@ -116,5 +116,3 @@ export const api = {
   clipUrl: (eventId) => `/api/events/${eventId}/clip`,
 };
 
-
-
