@@ -22,11 +22,18 @@ def _get_model():
         return _model
 
     import sys
-    # model/ 폴더를 path에 추가 — 내부 절대 임포트(import config 등) 지원
+    # 공통 설정은 기본 model/ 폴더에서 읽고, 모델 구현·predict_cam은
+    # MODEL_NAME에 대응하는 백본 폴더에서 읽는다.
     sys.path.insert(0, str(settings.MODEL_DIR))
 
     import torch
     import config as model_config
+
+    model_code_dir = settings.BASE_DIR / f"{model_config.MODEL_NAME} model"
+    if not model_code_dir.is_dir():
+        model_code_dir = settings.MODEL_DIR
+    sys.path.insert(0, str(model_code_dir))
+
     from hitandrun_model import HitAndRun3DCNN
     from device_utils import get_device, is_channels_last_3d_supported
 
@@ -36,8 +43,14 @@ def _get_model():
     if is_channels_last_3d_supported(device) and model_config.USE_CHANNELS_LAST:
         model = model.to(memory_format=torch.channels_last_3d)
     # 배포 가중치 경로는 model/config.py 에서 관리 (SERVICE_WEIGHTS_PATH)
+    weights_path = model_config.SERVICE_WEIGHTS_PATH
+    if not weights_path.is_file():
+        raise FileNotFoundError(
+            f"서비스 가중치를 찾을 수 없습니다: {weights_path}. "
+            "weights/ 폴더에 지정된 .pth 파일을 배치하세요."
+        )
     state_dict = torch.load(
-        str(model_config.SERVICE_WEIGHTS_PATH), map_location="cpu", weights_only=True)
+        str(weights_path), map_location="cpu", weights_only=True)
     model.load_state_dict(state_dict)
     model.eval()
     _model = model

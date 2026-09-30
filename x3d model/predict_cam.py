@@ -22,7 +22,7 @@ activation = {}
 # 쓰지 않게 한다(가짜 추정 → 실제값 전환 시 진행바가 뒤로 점프하는 문제 방지).
 PROG_DECODE_END = 0.25    # 프레임 디코딩/크롭
 PROG_PRESCREEN_END = 0.30  # 광학흐름 사전선별
-PROG_INFER_END = 0.95     # S3D 윈도우 추론
+PROG_INFER_END = 0.95     # X3D 윈도우 추론
 # 0.95~1.0 = 사고구간 CAM 클립 렌더링
 
 
@@ -571,15 +571,15 @@ def predict_events_and_clips(
         events = []          # [{'start_frame','end_frame'}, ...]
         # frame_idx → (heatmap_bbox, prob) (사고로 예측된 프레임만)
         accident_overlays = {}
-        # window_idx → pred_class (S3D를 실제로 실행한 윈도우만)
+        # window_idx → pred_class (X3D를 실제로 실행한 윈도우만)
         window_pred = {}
 
         num_windows = full_video_tensor.size(1) - (clip_length - 1)
         window_starts = list(range(0, max(0, num_windows), window_stride))
 
         # [2단계 1단계] 광학흐름 사전선별: '사고 의심 프레임'으로 끝나는 윈도우만
-        # S3D로 평가한다. 나머지는 비사고(class 0)로 간주(선별기가 고재현율이므로
-        # 실제 충돌은 반드시 스파이크 근처에 있음). 멀티-아워 영상에서 S3D 호출을
+        # X3D로 평가한다. 나머지는 비사고(class 0)로 간주(선별기가 고재현율이므로
+        # 실제 충돌은 반드시 스파이크 근처에 있음). 멀티-아워 영상에서 X3D 호출을
         # 대폭 줄인다. 선별 실패/과다 시 helper가 '전체 True'를 돌려 전체스캔 폴백.
         # 피해차 bbox를 224 크롭 좌표계로 환산 → 충격 '시점' 판정 전용 ROI.
         # (정사각 크롭 여백을 지나는 가해차량 모션에 시점이 끌려가지 않게 한다)
@@ -604,12 +604,12 @@ def predict_events_and_clips(
         if not eval_window_starts:
             eval_window_starts = window_starts  # 방어적: 하나도 없으면 전체
         print(f"[2단계] 사전선별: 전체 {len(window_starts)} 윈도우 → "
-              f"S3D 평가 {len(eval_window_starts)}개 "
+              f"X3D 평가 {len(eval_window_starts)}개 "
               f"({100.0 * len(eval_window_starts) / max(1, len(window_starts)):.0f}%)")
         if progress_callback is not None:
             progress_callback(PROG_PRESCREEN_END)
 
-        # Phase A: 선별된 윈도우에만 S3D 실행 (예측/확률/CAM 저장)
+        # Phase A: 선별된 윈도우에만 X3D 실행 (예측/확률/CAM 저장)
         with torch.inference_mode():
             for batch_start in range(0, len(eval_window_starts), infer_batch_size):
                 # 실제 추론 진행도 보고 (사전선별 종료~추론 종료 구간에 매핑)

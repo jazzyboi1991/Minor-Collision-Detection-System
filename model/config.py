@@ -21,8 +21,9 @@ INFER_DEVICE_TYPE = "cpu"    # 예측·평가(추론) 전용 디바이스
 
 # ---------- 공통 설정 ----------
 DATA_DIR = _ROOT / "data" / "train"
-# 이 폴더가 학습/추론하는 백본 이름. 가중치 파일명에 붙어 모델을 구분한다.
-MODEL_NAME = "s3d"
+# 학습/추론에 사용할 백본 이름. 백엔드는 `<MODEL_NAME> model/`에서
+# 해당 백본의 모델·추론 코드를 선택한다.
+MODEL_NAME = "x3d"
 MODEL_NUM_CLASSES = 2
 CLIP_LENGTH = 30
 RESIZE = (224, 224)
@@ -65,7 +66,7 @@ USE_AMP = True
 USE_CHANNELS_LAST = True
 
 # ---------- 사전학습 / 입력 정규화 ----------
-# 백본은 torchvision S3D. 학습 시 Kinetics-400 사전학습 가중치로 초기화한다.
+# 백본은 X3D-M. 학습 시 Kinetics-400 사전학습 가중치로 초기화한다.
 # (사전학습은 파라미터 '초기값'만 바꾸므로 모델 크기·추론 속도는 동일)
 PRETRAINED = True
 # 입력 정규화 통계 — S3D Kinetics-400 사전학습과 동일한 값 사용 (전이 효율 최대화)
@@ -84,11 +85,11 @@ TRAIN_EARLY_STOPPING_PATIENCE = 15 # patience 값 변경 10 -> 15로 변경 (이
 TRAIN_LEARNING_RATE = 0.00003  # S3D 미세조정 (헤드 기준; 백본은 train.py에서 자동 ×0.1 → 3e-6). 진동 억제 위해 1e-4에서 하향
 
 # ---------- 웹 서비스(백엔드 Celery 워커) 전용 ----------
-# 백엔드 prediction_job이 로드하는 배포 가중치. 반드시 S3D 구조(.pth)여야 한다.
-SERVICE_WEIGHTS_PATH = _ROOT / "weights" / "hitandrun_260828_32ep_earlyY_0.3807.pth"
+# 백엔드 prediction_job이 MODEL_NAME에 맞는 구조로 로드하는 배포 가중치.
+SERVICE_WEIGHTS_PATH = _ROOT / "weights" / "hitandrun_x3d_260922_33ep_earlyY_ptY_0.1999.pth"
 
 # ---------- 단일 영상 예측/CAM 출력 전용 ----------
-PREDICT_WEIGHTS_PATH = _ROOT / "weights" / "hitandrun_260828_32ep_earlyY_0.3807.pth"
+PREDICT_WEIGHTS_PATH = SERVICE_WEIGHTS_PATH
 PREDICT_VIDEO_PATH = _ROOT / "data" / "eval" / "real01.mp4"
 PREDICT_TXT_PATH = _ROOT / "data" / "eval" / "real01.txt"
 PREDICT_OUTPUT_DIR = _ROOT / "data" / "predict_cam_result"
@@ -117,7 +118,7 @@ PREDICT_EVENT_MERGE_GAP_FRAMES = 45   # 이벤트 간 간격 ≤ 45면 하나로
 PREDICT_MIN_EVENT_SPAN_FRAMES = 40    # 구간 길이가 이보다 짧으면 깜빡임으로 보고 제거
 
 # ---------- 실제영상 정확도 평가 전용 ----------
-EVAL_WEIGHTS_PATH = _ROOT / "weights" / "hitandrun_260828_32ep_earlyY_0.3807.pth"
+EVAL_WEIGHTS_PATH = SERVICE_WEIGHTS_PATH
 EVAL_FOLDER_PATH = _ROOT / "data" / "eval"
 EVAL_INFER_BATCH_SIZE = 8 # batch size 8로 바꾸었음(이정주)
 EVAL_WINDOW_STRIDE = 1  # 기본값: 1 (올리면 속도↑ 정확도 소폭↓)
