@@ -16,8 +16,20 @@ load_dotenv(_BASE_DIR / "backend" / ".env")
 class Settings:
     # capstone-26/backend/app/settings.py → parents[2] == capstone-26
     BASE_DIR: Path = _BASE_DIR
-    MODEL_DIR: Path = BASE_DIR / "model"
-    # 배포 가중치 경로는 model/config.py 의 SERVICE_WEIGHTS_PATH 에서 관리한다.
+
+    # giwon 모델 선택 구조. 기본값 x3d는 현재 보유한 서비스 가중치와 호환된다.
+    MODEL_VARIANT_DIRS = {
+        "s3d": "model",
+        "x3d": "x3d model",
+        "slowfast": "slowfast model",
+    }
+    MODEL_VARIANT: str = os.getenv("MODEL_VARIANT", "x3d").strip().lower()
+    if MODEL_VARIANT not in MODEL_VARIANT_DIRS:
+        raise ValueError(
+            f"MODEL_VARIANT='{MODEL_VARIANT}' 는 지원하지 않습니다. "
+            f"가능한 값: {', '.join(MODEL_VARIANT_DIRS)}")
+    MODEL_DIR: Path = BASE_DIR / MODEL_VARIANT_DIRS[MODEL_VARIANT]
+    # 배포 가중치 경로는 선택된 모델 폴더의 config.py에서 관리한다.
 
     STORAGE_DIR: Path = BASE_DIR / "storage"
     UPLOAD_DIR: Path = STORAGE_DIR / "uploads"
