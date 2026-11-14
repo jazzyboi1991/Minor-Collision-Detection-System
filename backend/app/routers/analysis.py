@@ -68,8 +68,18 @@ def _enqueue(video_id: int, bbox: dict, db: Session) -> api_schemas.AnalyzeRespo
     db.refresh(task)
 
     # Celery 큐에 적재 (torch 미설치 웹 프로세스에서도 .delay는 동작)
-    from app.prediction_job import run_prediction_task
-    async_result = run_prediction_task.delay(task.id)
+    try:
+        from app.prediction_job import run_prediction_task
+        async_result = run_prediction_task.delay(task.id)
+    except Exception as exc:
+        task.status = "FAILURE"
+        task.error_message = f"분석 작업을 큐에 넣지 못했습니다: {exc}"[:2000]
+        task.finished_at = datetime.utcnow()
+        db.commit()
+        raise HTTPException(
+            status_code=503,
+            detail="분석 작업을 시작할 수 없습니다. 잠시 후 다시 시도해 주세요.",
+        ) from exc
     task.celery_task_id = async_result.id
     db.commit()
 

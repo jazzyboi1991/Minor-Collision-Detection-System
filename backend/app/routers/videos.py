@@ -178,6 +178,13 @@ def upload_video(
     if len(title) > 100:
         raise HTTPException(status_code=400, detail="제목은 100자까지 입력할 수 있습니다.")
 
+    rec_date: date | None = None
+    if recording_date:
+        try:
+            rec_date = date.fromisoformat(recording_date)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="녹화일자 형식이 잘못되었습니다.")
+
     ext = Path(file.filename).suffix or ".mp4"
     stored_name = f"{uuid4().hex}{ext}"
     storage = get_storage()
@@ -196,13 +203,6 @@ def upload_video(
             logging.getLogger(__name__).warning("Thumbnail preparation failed: %s", type(exc).__name__)
     finally:
         temp_path.unlink(missing_ok=True)
-
-    rec_date: date | None = None
-    if recording_date:
-        try:
-            rec_date = date.fromisoformat(recording_date)
-        except ValueError:
-            raise HTTPException(status_code=400, detail="녹화일자 형식이 잘못되었습니다.")
 
     video = db_models.Video(
         user_id=user.id,

@@ -929,6 +929,7 @@ function Dashboard({ onLogout, view, currentUser, onUpdateUser, isDarkMode, setI
   const [clearingHistory, setClearingHistory] = useState(false);
   const [clipView, setClipView] = useState("cam");
   const [isPlayerSettingsOpen, setIsPlayerSettingsOpen] = useState(false);
+  const [isDragSeeking, setIsDragSeeking] = useState(false);
   const camChipRef = useRef(null);
   const camOverlayChipRef = useRef(null);
   const playerSettingsRef = useRef(null);
@@ -1856,22 +1857,22 @@ function Dashboard({ onLogout, view, currentUser, onUpdateUser, isDarkMode, setI
     pendingSeekTimeRef.current = time;
     if (videoElRef.current?.seeking) return;
     if (seekPreviewFrameRef.current || seekPreviewTimerRef.current) return;
-    const delay = seekPointerTypeRef.current === "touch"
-      ? Math.max(0, 150 - (performance.now() - seekPreviewLastAppliedAtRef.current))
-      : 0;
-    if (delay > 0) {
-      seekPreviewTimerRef.current = setTimeout(() => {
-        seekPreviewTimerRef.current = null;
-        if (isSeekingRef.current && pendingSeekTimeRef.current != null) {
-          queueSeekPreview(pendingSeekTimeRef.current);
-        }
-      }, delay);
-      return;
-    }
     seekPreviewFrameRef.current = requestAnimationFrame(() => {
       seekPreviewFrameRef.current = 0;
       const v = videoElRef.current;
       if (!isSeekingRef.current || !v || v.seeking || pendingSeekTimeRef.current == null) return;
+      const delay = seekPointerTypeRef.current === "touch"
+        ? Math.max(0, 150 - (performance.now() - seekPreviewLastAppliedAtRef.current))
+        : 0;
+      if (delay > 0) {
+        seekPreviewTimerRef.current = setTimeout(() => {
+          seekPreviewTimerRef.current = null;
+          if (isSeekingRef.current && pendingSeekTimeRef.current != null) {
+            queueSeekPreview(pendingSeekTimeRef.current);
+          }
+        }, delay);
+        return;
+      }
       const nextTime = pendingSeekTimeRef.current;
       pendingSeekTimeRef.current = null;
       if (Math.abs(v.currentTime - nextTime) < 0.001) return;
@@ -1903,6 +1904,7 @@ function Dashboard({ onLogout, view, currentUser, onUpdateUser, isDarkMode, setI
     seekPointerTypeRef.current = e.pointerType;
     seekPreviewLastAppliedAtRef.current = -Infinity;
     didDragSeekRef.current = false;
+    setIsDragSeeking(false);
     isSeekingRef.current = true;
     setIsSeeking(true);
     const ratio = seekRatioAt(e);
@@ -1915,8 +1917,10 @@ function Dashboard({ onLogout, view, currentUser, onUpdateUser, isDarkMode, setI
   };
 
   const handleSeekMove = (e) => {
-    if (isSeekingRef.current && Math.abs(e.clientX - seekStartXRef.current) > seekDragThresholdRef.current) {
+    if (isSeekingRef.current && !didDragSeekRef.current
+      && Math.abs(e.clientX - seekStartXRef.current) > seekDragThresholdRef.current) {
       didDragSeekRef.current = true;
+      setIsDragSeeking(true);
     }
     const ratio = seekRatioAt(e);
     updateSeekBubble(e, ratio);
@@ -1970,12 +1974,12 @@ function Dashboard({ onLogout, view, currentUser, onUpdateUser, isDarkMode, setI
     seekPointerTypeRef.current = null;
     setIsSeeking(false);
     didDragSeekRef.current = false;
+    setIsDragSeeking(false);
     if (Math.abs(seekDelta) > 0.05) {
       showPlayerFeedback(seekDelta < 0 ? "fastRewind" : "fastForward");
     }
     // Touch 브라우저의 합성 click이 이동량에 따라 취소돼도 빨간 구간 탭은 재생되게 한다.
     if (tappedEvent) {
-      const video = videoElRef.current;
       seekToEvent(
         tappedEvent,
         pendingTime ?? (tappedEvent.startSec ?? tappedEvent.timestamp),
@@ -2008,6 +2012,7 @@ function Dashboard({ onLogout, view, currentUser, onUpdateUser, isDarkMode, setI
     seekPointerTypeRef.current = null;
     didDragSeekRef.current = false;
     setIsSeeking(false);
+    setIsDragSeeking(false);
     if (videoElRef.current) setCurrentTime(videoElRef.current.currentTime);
     if (shouldResumePlayback) {
       const video = videoElRef.current;
@@ -2303,10 +2308,6 @@ function Dashboard({ onLogout, view, currentUser, onUpdateUser, isDarkMode, setI
   const isCompactScreen = useMediaQuery("(max-width: 480px)");
   const useCompactFullscreenSettings = isFullscreen && isCompactScreen;
   const actionsInSide = isWideScreen && !!selectedVideo;
-
-  useEffect(() => {
-    if (!useCompactFullscreenSettings) setIsPlayerSettingsOpen(false);
-  }, [useCompactFullscreenSettings]);
 
   useEffect(() => {
     if (!isPlayerSettingsOpen) return undefined;
@@ -3618,7 +3619,7 @@ function Dashboard({ onLogout, view, currentUser, onUpdateUser, isDarkMode, setI
                 {/* 재생바 + 재생 컨트롤 (영상 화면을 가리지 않게 화면 바깥 하단) */}
                 <div className="custom-progress-bar">
                   <div
-                    className={`progress-track ${isSeeking && didDragSeekRef.current ? "seeking" : ""} ${isSeeking && !didDragSeekRef.current ? "click-seeking" : ""} ${isDetectingVehicles ? "locked" : ""} ${isCurrentTimeInEvent ? "event-current" : ""}`}
+                    className={`progress-track ${isSeeking && isDragSeeking ? "seeking" : ""} ${isSeeking && !isDragSeeking ? "click-seeking" : ""} ${isDetectingVehicles ? "locked" : ""} ${isCurrentTimeInEvent ? "event-current" : ""}`}
                     title={isDetectingVehicles ? "차량 탐지 중에는 이동할 수 없습니다" : undefined}
                     onPointerDown={handleSeekStart}
                     onPointerMove={handleSeekMove}
